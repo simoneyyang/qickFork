@@ -44,7 +44,7 @@ module dac_tb();
          #50;         
          expected_out = vref * (real'(2**bits - 1)) / (real'(2**bits));
          
-         assert(((aout - expected_out) < 1e-9) ? -(aout - expected_out) : (aout - expected_out)) else begin
+         assert(aout == expected_out) else begin
             $error("aout is not its expected value with a max input");
             errors++;
         end
