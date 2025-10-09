@@ -2,10 +2,8 @@
 
 module dac_tb();
 
-    // Parameters
     parameter int bits = 16;
 
-    // Signals
     logic              clk;
     logic [bits-1:0]   s_axis_data;
     real               vref;
@@ -17,10 +15,8 @@ module dac_tb();
     real pi = 3.141592653589793;
     real radians;
     real amplitude;
-    real offset;
     real analog_input;
 
-    // DUT instantiation (make sure this matches your actual DAC module)
     dac dut(
         .clk(clk),
         .s_axis_tdata(s_axis_data),
@@ -29,22 +25,21 @@ module dac_tb();
 
     // Clock generation: 430.08 MHz (period ~2.325 ns)
     always begin
-        clk = 1; #1162.5;  // half period in picoseconds
+        clk = 1; #1162.5;
         clk = 0; #1162.5;
     end
 
     // CSV File Handle
     integer f;
 
-    // Log values to CSV every clock rising edge
+    // Log values to CSV
     always @(posedge clk) begin
         $fwrite(f, "%0t,%0d,%f,%f\n", $time, s_axis_data, aout, expected_out);
     end
 
-    // Test process
     initial begin
         // Initialization
-        s_axis_data = 16'd0;
+        s_axis_data = 16'sd0;
         errors = 0;
         vref = 5.0;
 
@@ -55,32 +50,23 @@ module dac_tb();
         end
         $fwrite(f, "time_ps,s_axis_data,aout,expected_out\n");
 
-        // Wait for DUT to initialize
-        #20000;  // 20,000 ps = 20 ns
+        #20000;
 
-        // Sine wave generation parameters
-        
-
-        amplitude = (2.0**bits - 1) / 2.0;  // Half range (e.g., 32767.5 for 16-bit)
-        offset   = amplitude;
+        // Sine wave generation for a signed DAC
+        amplitude = (2.0**(bits-1) - 1);  // Max positive value
 
         for (i = 0; i < num_samples; i++) begin
             radians = (2.0 * pi * i) / num_samples;
-            analog_input = offset + amplitude * $sin(radians);  // Sine wave 0 to max
-
-            // Clip and cast to int for digital value
-            if (analog_input < 0) analog_input = 0;
-            else if (analog_input > (2.0**bits - 1)) analog_input = (2.0**bits - 1);
-
+            // Generate a sine wave that swings from -amplitude to +amplitude
+            analog_input = amplitude * $sin(radians);
             s_axis_data = int'(analog_input);
 
-            // Expected analog output from ideal DAC
-            expected_out = (vref * real'(s_axis_data)) / (2.0**bits);
+            // Expected analog output from ideal signed DAC
+            expected_out = (vref * $signed(s_axis_data)) / (2.0**(bits-1));
 
-            #2325;  // Wait one full clock period (2.325 ns = 2325 ps)
+            #2325;  // Wait full clk period
         end
 
-        // Wrap up
         if (errors == 0)
             $display("All tests passed.");
         else
