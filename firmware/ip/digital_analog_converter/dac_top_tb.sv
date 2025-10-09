@@ -11,13 +11,12 @@ module dac_top_tb();
     logic              clk;
     logic [bits-1:0]   s_axis_tdata;
     logic              s_axis_tvalid;
-    logic [DAC_BITS-1:0] single_channel_data;
     real               vref;
     real               dac_out [N_DAC];
     logic [31:0]       errors;
-    real               expected_out;
+    real               expected_out [N_DAC];
     int                i, j;
-    int                num_samples = 100;
+    int                num_samples = 100; // Number of clock cycles
     real               pi = 3.141592653589793;
     real               radians;
     real               amplitude;
@@ -40,10 +39,16 @@ module dac_top_tb();
     // CSV File Handle
     integer f;
 
-    // Log values to CSV
+    // Log values for ALL channels to CSV when data is valid
     always @(posedge clk) begin
         if (s_axis_tvalid) begin
-            $fwrite(f, "%0t,%0d,%f,%f\n", $time, $signed(s_axis_tdata[15:0]), dac_out[0], expected_out);
+            // Write time once per row
+            $fwrite(f, "%0t", $time);
+            // Loop through and write each channel's output and expected value
+            for (int k = 0; k < N_DAC; k = k + 1) begin
+                $fwrite(f, ",%f,%f", dac_out[k], expected_out[k]);
+            end
+            $fwrite(f, "\n"); // End the line
         end
     end
 
@@ -55,11 +60,16 @@ module dac_top_tb();
         vref = 1.0;
 
         // Open CSV file
-        f = $fopen("top_dac.csv", "w");
+        f = $fopen("top_dac_sequential.csv", "w");
         if (f == 0) begin
-            $fatal("Failed to open output_top.csv");
+            $fatal("Failed to open top_dac_sequential.csv");
         end
-        $fwrite(f, "time_ps,s_axis_data_ch0,aout_ch0,expected_out_ch0\n");
+        // Create headers for all channels
+        $fwrite(f, "time_ps");
+        for (int k = 0; k < N_DAC; k = k + 1) begin
+            $fwrite(f, ",aout_ch%0d,expected_ch%0d", k, k);
+        end
+        $fwrite(f, "\n");
 
         #20000;
         s_axis_tvalid = 1; // Assert valid to start test
@@ -67,18 +77,22 @@ module dac_top_tb();
         // Sine wave generation
         amplitude = (2.0**(DAC_BITS-1) - 1);
 
+        // Loop through clock cycles
         for (i = 0; i < num_samples; i++) begin
-            radians = (2.0 * pi * i) / num_samples;
-            analog_input = amplitude * $sin(radians);
-            single_channel_data = int'(analog_input);
-
-            // Drive all 16 channels with the same data
+            // In each clock cycle, calculate the data for all 16 channels
             for (j = 0; j < N_DAC; j = j + 1) begin
+                // Calculate the phase for each channel sequentially
+                // This creates 16 consecutive points of a sine wave per clock cycle
+                radians = (2.0 * pi * (i * N_DAC + j)) / (num_samples * N_DAC);
+                analog_input = amplitude * $sin(radians);
+                logic [DAC_BITS-1:0] single_channel_data = int'(analog_input);
+                
+                // Assign the unique data point to the correct 16-bit slice
                 s_axis_tdata[j*16 +: 16] = single_channel_data;
-            end
 
-            // Expected analog output
-            expected_out = (vref * $signed(single_channel_data)) / (2.0**(DAC_BITS-1));
+                // Store the expected output for this specific channel
+                expected_out[j] = (vref * $signed(single_channel_data)) / (2.0**(DAC_BITS-1));
+            end
 
             #2325;  // Wait one clk period
         end
@@ -89,7 +103,7 @@ module dac_top_tb();
         else
             $display("%0d tests failed.", errors);
 
-        $display("Test completed. Data logged to output_top.csv");
+        $display("Test completed. Data logged to top_dac_sequential.csv");
         $fclose(f);
         $stop;
     end
