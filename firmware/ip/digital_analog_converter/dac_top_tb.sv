@@ -11,6 +11,7 @@ module dac_top_tb();
     logic              clk;
     logic [bits-1:0]   s_axis_tdata;
     logic              s_axis_tvalid;
+    logic [DAC_BITS-1:0] single_channel_data;
     real               vref;
     real               dac_out [N_DAC];
     logic [31:0]       errors;
@@ -51,7 +52,7 @@ module dac_top_tb();
         s_axis_tdata = 0;
         s_axis_tvalid = 0;
         errors = 0;
-        vref = 5.0;
+        vref = 1.0;
 
         // Open CSV file
         f = $fopen("top_dac.csv", "w");
@@ -69,7 +70,7 @@ module dac_top_tb();
         for (i = 0; i < num_samples; i++) begin
             radians = (2.0 * pi * i) / num_samples;
             analog_input = amplitude * $sin(radians);
-            logic [DAC_BITS-1:0] single_channel_data = int'(analog_input);
+            single_channel_data = int'(analog_input);
 
             // Drive all 16 channels with the same data
             for (j = 0; j < N_DAC; j = j + 1) begin

@@ -41,10 +41,10 @@ module dac_tb();
         // Initialization
         s_axis_data = 16'sd0;
         errors = 0;
-        vref = 5.0;
+        vref = 1.0;
 
         // Open CSV file
-        f = $fopen("output.csv", "w");
+        f = $fopen("little_dac.csv", "w");
         if (f == 0) begin
             $fatal("Failed to open output.csv");
         end
