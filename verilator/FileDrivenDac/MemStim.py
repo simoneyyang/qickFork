@@ -3,10 +3,10 @@ import os, shutil, subprocess, sys, csv
 
 # --- Config ---
 STIM_SCRIPT  = "generate_stimulus_mem.py"
-TOP          = "dac_top_tb_mem"  #  <-- Changed
-SRCS         = ["dac_top_tb_mem.sv", "dac_top.sv", "dac.sv"] # <-- Changed
-BUILD_DIR    = "build_tb_mem"    # <-- Changed
-CSV_NAME     = "top_dac_mem.csv" # <-- Changed (This is the *output* file)
+TOP          = "dac_top_tb_mem"  #  The new memory-file-driven TB
+SRCS         = ["dac_top_tb_mem.sv", "dac_top.sv", "dac.sv"] # 
+BUILD_DIR    = "build_tb_mem"    # Build directory
+CSV_NAME     = "top_dac_mem.csv" # Output from the new TB
 VERILATOR    = shutil.which("verilator") or "/opt/homebrew/bin/verilator"
 PYTHON       = shutil.which("python3") or "python3"
 # --- End Config ---
