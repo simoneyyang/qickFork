@@ -4,6 +4,9 @@
 
 // import axi_test::*;
 
+`include "axi/typedef.svh"
+`include "axi/assign.svh"
+
 module tb_verilator();
 
 // DUT generics.
@@ -116,12 +119,12 @@ typedef axi_test::axi_lite_rand_master #(
 AXI_LITE #(
    .AXI_ADDR_WIDTH ( AxiAddrWidth     ),
    .AXI_DATA_WIDTH ( AxiDataWidth     )
-) master0 ();
+) master0_IF ();
 AXI_LITE_DV #(
    .AXI_ADDR_WIDTH ( AxiAddrWidth      ),
    .AXI_DATA_WIDTH ( AxiDataWidth      )
-) master0_dv (aclk);
-`AXI_LITE_ASSIGN(master0, master0_dv)
+) master0_dv_IF (s_axi_aclk);
+`AXI_LITE_ASSIGN(master0_IF, master0_dv_IF)
 
 // Test bench control.
 reg   tb_load_mem       = 0;
@@ -164,55 +167,49 @@ endgenerate
 //       .m_axi_wvalid  (s_axi_wvalid  )
 //    );
 
-  id_t              AXI_LITE_DV.aw_id;
-  addr_t            AXI_LITE_DV.aw_addr;
-  axi_pkg::len_t    AXI_LITE_DV.aw_len;
-  axi_pkg::size_t   AXI_LITE_DV.aw_size;
-  axi_pkg::burst_t  AXI_LITE_DV.aw_burst;
-  logic             AXI_LITE_DV.aw_lock;
-  axi_pkg::cache_t  AXI_LITE_DV.aw_cache;
-  axi_pkg::prot_t   AXI_LITE_DV.aw_prot;
-  axi_pkg::qos_t    AXI_LITE_DV.aw_qos;
-  axi_pkg::region_t AXI_LITE_DV.aw_region;
-  axi_pkg::atop_t   AXI_LITE_DV.aw_atop;
-  user_t            AXI_LITE_DV.aw_user;
-  logic             AXI_LITE_DV.aw_valid;
-  logic             AXI_LITE_DV.aw_ready;
+//   modport Slave (
+//     input aw_addr, aw_prot, aw_valid, 
+//     output aw_ready,
 
-  data_t            AXI_LITE_DV.w_data;
-  strb_t            AXI_LITE_DV.w_strb;
-  logic             AXI_LITE_DV.w_last;
-  user_t            AXI_LITE_DV.w_user;
-  logic             AXI_LITE_DV.w_valid;
-  logic             AXI_LITE_DV.w_ready;
+//     input w_data, w_strb, w_valid, 
+//     output w_ready,
 
-  id_t              AXI_LITE_DV.b_id;
-  axi_pkg::resp_t   AXI_LITE_DV.b_resp;
-  user_t            AXI_LITE_DV.b_user;
-  logic             AXI_LITE_DV.b_valid;
-  logic             AXI_LITE_DV.b_ready;
+//     output b_resp, b_valid, 
+//     input b_ready,
 
-  id_t              AXI_LITE_DV.ar_id;
-  addr_t            AXI_LITE_DV.ar_addr;
-  axi_pkg::len_t    AXI_LITE_DV.ar_len;
-  axi_pkg::size_t   AXI_LITE_DV.ar_size;
-  axi_pkg::burst_t  AXI_LITE_DV.ar_burst;
-  logic             AXI_LITE_DV.ar_lock;
-  axi_pkg::cache_t  AXI_LITE_DV.ar_cache;
-  axi_pkg::prot_t   AXI_LITE_DV.ar_prot;
-  axi_pkg::qos_t    AXI_LITE_DV.ar_qos;
-  axi_pkg::region_t AXI_LITE_DV.ar_region;
-  user_t            AXI_LITE_DV.ar_user;
-  logic             AXI_LITE_DV.ar_valid;
-  logic             AXI_LITE_DV.ar_ready;
+//     input ar_addr, ar_prot, ar_valid, 
+//     output ar_ready,
 
-  id_t              AXI_LITE_DV.r_id;
-  data_t            AXI_LITE_DV.r_data;
-  axi_pkg::resp_t   AXI_LITE_DV.r_resp;
-  logic             AXI_LITE_DV.r_last;
-  user_t            AXI_LITE_DV.r_user;
-  logic             AXI_LITE_DV.r_valid;
-  logic             AXI_LITE_DV.r_ready;
+//     output r_data, r_resp, r_valid, 
+//     input r_ready
+//   );
+
+// s_axi_aclk
+// s_axi_aresetn
+assign s_axi_araddr        = master0_IF.ar_addr  ; /* DUT  input */
+assign s_axi_arprot        = master0_IF.ar_prot  ; /* DUT  input */
+assign s_axi_arvalid       = master0_IF.ar_valid ; /* DUT  input */
+assign master0_IF.ar_ready = s_axi_arready       ; /* DUT output */
+
+assign s_axi_awaddr        = master0_IF.aw_addr  ; /* DUT  input */
+assign s_axi_awprot        = master0_IF.aw_prot  ; /* DUT  input */
+assign s_axi_awvalid       = master0_IF.aw_valid ; /* DUT  input */
+assign master0_IF.aw_ready = s_axi_awready       ; /* DUT output */
+
+assign master0_IF.b_resp   = s_axi_bresp         ; /* DUT output */
+assign master0_IF.b_valid  = s_axi_bvalid        ; /* DUT output */
+assign s_axi_bready        = master0_IF.b_ready  ; /* DUT  input */
+
+assign master0_IF.r_resp   = s_axi_rresp         ; /* DUT output */
+assign master0_IF.r_valid  = s_axi_rvalid        ; /* DUT output */
+assign master0_IF.r_data   = s_axi_rdata         ; /* DUT output */
+assign s_axi_rready        = master0_IF.r_ready  ; /* DUT  input */
+
+assign s_axi_wdata         = master0_IF.w_data   ; /* DUT  input */
+assign s_axi_wstrb         = master0_IF.w_strb   ; /* DUT  input */
+assign s_axi_wvalid        = master0_IF.w_valid  ; /* DUT  input */
+assign master0_IF.w_ready  = s_axi_wready        ; /* DUT output */
+
 
 axis_signal_gen_v6
     #
@@ -277,12 +274,11 @@ assign s1_axis_tdata = {{10{1'b0}},phrst_r,stdysel_r,mode_r,outsel_r,nsamp_r,{16
 
 initial begin
 
-   automatic rand_lite_master_t lite_axi_master = new ( master0_dv, "MST_0");
+   automatic rand_lite_master_t lite_axi_master = new ( master0_dv_IF, "MST_0");
    automatic data_t          data_wr = '0;
    automatic axi_pkg::resp_t resp    = axi_pkg::RESP_SLVERR;
    automatic addr_t addr_start_addr  = 32'h40000000; // 0
    automatic addr_t addr_we          = 32'h40000004; // 1
-   lite_axi_master.reset();
 
 
    // // Create agents.
@@ -298,6 +294,7 @@ initial begin
    s_axi_aresetn     <= 0;
    s0_axis_aresetn   <= 0;
    aresetn           <= 0;
+   lite_axi_master.reset();
    #500;
    s_axi_aresetn     <= 1;
    s0_axis_aresetn   <= 1;
@@ -637,4 +634,3 @@ function [31:0] freq_calc;
 endfunction
 
 endmodule
-

@@ -5,16 +5,14 @@ TOP_MODULE_PARAMS =
 
 FIRMWARE_DIR = ../../../../
 
-AXI_DIR = # TODO
+AXI_DIR = $(FIRMWARE_DIR)/pulp_platform/axi/
+COM_VERIF_DIR = $(FIRMWARE_DIR)/pulp_platform/common_verification/
 
-VERILOG_SOURCES = ./tb_verilator.sv $(wildcard ../*.v) $(wildcard ../*.sv) \
-                                    $(wildcard $(FIRMWARE_DIR)/openhdl/*.sv) \
-									$(wildcard $(FIRMWARE_DIR)/ip/sig_gen_dds/src/*.sv) \ 
-									$(wildcard $(AXI_DIR)/src/*.sv) \
+VERILOG_SOURCES = $(wildcard ../*.v) $(wildcard ../*.sv) $(wildcard $(FIRMWARE_DIR)/openhdl/*.sv) $(wildcard $(FIRMWARE_DIR)/ip/sig_gen_dds/src/*.sv) $(COM_VERIF_DIR)/src/rand_id_queue.sv $(AXI_DIR)/src/axi_intf.sv $(AXI_DIR)/src/axi_pkg.sv $(AXI_DIR)/src/axi_test.sv ./tb_verilator.sv
 
 #$(wildcard ../../../hdl/*.sv)
 
-VERILATOR_FLAGS = --binary --exe --build -j 0 -Wall --trace-vcd --Wno-fatal
+VERILATOR_FLAGS = --binary --exe --build -j 0 -Wall --trace-vcd --Wno-fatal -I$(AXI_DIR)/include/
 
 OBJ_DIR = obj_dir
 
