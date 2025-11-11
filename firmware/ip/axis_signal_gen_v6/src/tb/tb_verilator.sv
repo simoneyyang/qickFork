@@ -141,7 +141,7 @@ for (ii = 0; ii < N_DDS; ii = ii + 1) begin : GEN_debug
 end
 endgenerate
 
-// TODO: REPLACE WITH SIGNAL UNPACKING OF AXI_LITE INTERFACE
+// NODE: REPLACED WITH SIGNAL UNPACKING OF AXI_LITE INTERFACE
 // axi_mst_0 axi_mst_0_i
 //    (
 //       .aclk          (s_axi_aclk    ),
@@ -271,6 +271,13 @@ axis_signal_gen_v6
 
 
 assign s1_axis_tdata = {{10{1'b0}},phrst_r,stdysel_r,mode_r,outsel_r,nsamp_r,{16{1'b0}},gain_r,{16{1'b0}},addr_r,phase_r,freq_r};
+
+initial begin
+
+   $dumpfile("obj_dir/waveform.vcd");
+   $dumpvars(0, tb_your_design);
+
+end
 
 initial begin
 
@@ -550,7 +557,7 @@ initial begin
    shortint real_d;
 
    // Output file.
-   fd = $fopen("./dout.csv","w");
+   fd = $fopen("obj_dir/dout.csv","w");
 
    // Data format.
    $fdisplay(fd, "valid, idx, real");

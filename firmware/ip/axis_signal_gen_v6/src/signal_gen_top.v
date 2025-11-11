@@ -156,7 +156,7 @@ generate
       /* Block instantiation */
       /***********************/
       // Memory for Real Part.
-      dp_bmem_behav
+      bram_dp_behav
       #(
          .OUT_REG_ENA   (1),
          // Memory address size.
@@ -180,7 +180,7 @@ generate
          .dob     (mem_dob_real[i*16 +: 16]   )
       );
 
-        if (ENVELOPE_TYPE == "COMPLEX") begin
+        if (ENVELOPE_TYPE == "COMPLEX") begin : gen_complex_env_type
             // Memory for Imaginary Part.
             dp_bmem_behav
             #(
@@ -206,7 +206,7 @@ generate
                .dob     (mem_dob_imag[i*16 +: 16]   )
             );
         end
-        else begin
+        else begin : gen_real_env_type
             assign mem_dob_imag[i*16 +: 16] = {16{1'b0}}; 
         end
     

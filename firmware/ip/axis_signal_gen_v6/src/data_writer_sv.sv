@@ -35,7 +35,7 @@ module data_writer_sv #(
     logic WE_REG_resync;
 
     // sychronizer
-    synchronizer_n #(.N(2)) sync0(.clk(clk), .rstn(rstn), .data_in(WE_REG), .data_out(WE_REG_resync));
+    synchronizer_n_sv #(.N(2)) sync0(.clk(clk), .rstn(rstn), .data_in(WE_REG), .data_out(WE_REG_resync));
 
     // Axis registers
     logic tready_i;

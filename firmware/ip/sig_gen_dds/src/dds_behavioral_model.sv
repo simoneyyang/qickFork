@@ -7,7 +7,7 @@
 // Date       : 09/16/2025
 //-----------------------------------------------------------------------------
 
-`timescale 1ns / 1ps
+// `timescale 1ns / 1ps
 
 module dds_behavioral_model # (
     // Reserve for Parameters

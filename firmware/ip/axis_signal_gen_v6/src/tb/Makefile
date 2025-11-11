@@ -20,7 +20,7 @@ wave:
 	gtkwave trace.vcd
 
 sim: 
-	./obj_dir/V$(TOP_MODULE)
+	./$(OBJ_DIR)/V$(TOP_MODULE)
 
 verilate: 
 	verilator $(VERILATOR_FLAGS) --top-module $(TOP_MODULE) $(VERILOG_SOURCES)

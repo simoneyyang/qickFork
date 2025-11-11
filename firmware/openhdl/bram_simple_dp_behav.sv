@@ -1,6 +1,6 @@
 // Verilog behavioral implementation of the simple bram cell found in qick/firmware/ip/axis_signal_gen_v5/src/fifo/bram_simple_dp.vhd
 
-/* verilator lint-off MULTIDRIVEN */
+
 
 module bram_simple_dp_behav
     # (
@@ -40,4 +40,3 @@ module bram_simple_dp_behav
 
 endmodule
 
-/* verilator lint-on MULTIDRIVEN */

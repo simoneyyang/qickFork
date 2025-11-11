@@ -173,7 +173,7 @@ generate
 genvar i;
    for (i=0; i<N_DDS; i=i+1) begin : GEN_dds
    
-      if (GEN_DDS == "TRUE") begin
+      if (GEN_DDS == "TRUE") begin : gen_dds_models
          /***********************/
          /* Block instantiation */
          /***********************/
@@ -282,7 +282,7 @@ genvar i;
       /*************/
       /* Registers */
       /*************/
-      if (GEN_DDS == "TRUE") begin
+      if (GEN_DDS == "TRUE") begin : gen_dds_regs
          always @(posedge clk) begin
             if (~rstn) begin
                // DDS output.
@@ -337,7 +337,7 @@ genvar i;
       /*****************************/
       // Product.
       // Inputs.
-      if (GEN_DDS == "TRUE") begin
+      if (GEN_DDS == "TRUE") begin : gen_dds_comb
          assign prod_a_real[i]         = dds_dout_la[i][15:0];
          assign prod_a_imag[i]         = dds_dout_la[i][31:16];
          assign prod_b_real[i]         = mem_real_la[i];
@@ -358,7 +358,7 @@ genvar i;
 
          assign prod_y_mux[i]          = prod_y_r1[i];
       end
-      else begin
+      else begin : gen_no_dds_comb
          assign prod_y_mux[i]          = mem_la_mux[i] >> 1;   // divide by 2 to match product path scaling
          assign dds_la_mux[i][15:0]    = (2**15)-1;
       end
@@ -446,7 +446,7 @@ latency_reg
 
 // Registers.
 generate
-if (GEN_DDS == "TRUE") begin
+if (GEN_DDS == "TRUE") begin : gen_dds_regs
    always @(posedge clk) begin
       if (~rstn) begin
          // DDS intput control.
