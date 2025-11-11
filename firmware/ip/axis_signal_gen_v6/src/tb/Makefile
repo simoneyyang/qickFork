@@ -20,6 +20,7 @@ wave:
 	gtkwave trace.vcd
 
 sim: 
+	cp -f $(FIRMWARE_DIR)/ip/sig_gen_dds/LUT_generator/*.hex .
 	./$(OBJ_DIR)/V$(TOP_MODULE)
 
 verilate: 
