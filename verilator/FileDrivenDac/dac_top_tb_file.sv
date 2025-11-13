@@ -18,7 +18,7 @@ module dac_top_tb_file();
     /* verilator lint_on UNUSEDSIGNAL */
     real               dac_out [N_DAC];
     
-    // --- File I/O ---
+    // File I/O 
     string STIM_FILE = "stimulus.csv";
     string LOG_FILE  = "top_dac_file.csv";
     integer f_stim_in, f_log_out;
@@ -35,9 +35,8 @@ module dac_top_tb_file();
     /* verilator lint_on UNUSEDSIGNAL */
     shortint   data_16bit;    //We will cast into this
     real    expected_out_in;
-    // Removed string expected_out_str
     
-    // --- Data for logger ---
+    //=- Data for logger
     int unsigned active_channel_for_logger;
     real         expected_out_for_logger;
     bit          log_enable; // Signal to control when to log
@@ -102,17 +101,16 @@ module dac_top_tb_file();
         while ($fgets(line, f_stim_in)) begin
         /* verilator lint_on WIDTHTRUNC */
 
-            // --- FIX: Advance time FIRST ---
             // This prevents an infinite loop if $sscanf fails
             @(negedge clk);
             log_enable = 0; // Default to not logging
 
-            // --- FIX: Strip newline/carriage return ---
+            //  Strip newline/carriage return 
             while (line.len() > 0 && (line[line.len()-1] == "\n" || line[line.len()-1] == "\r")) begin
                 line = line.substr(0, line.len()-2);
             end
 
-            // --- FIX: Use %d for the 16-bit data, %f for the real ---
+            //  Use %d for the 16-bit data, %f for the real 
             scanned = $sscanf(line, "%d,%d,%d,%f", 
                              time_ps_in, channel_j, data_as_int, expected_out_in);
             
@@ -120,8 +118,8 @@ module dac_top_tb_file();
                 $display("Warning: Skipping malformed line (scanned != 4): %s", line);
                 s_axis_tdata = '0; // Drive 0 on bad line
             end else begin
-                // --- Valid line: Apply Stimulus ---
-                data_16bit = shortint'(data_as_int); // <-- Cast from int to shortint
+                //  Apply Stimulus 
+                data_16bit = shortint'(data_as_int); //Cast from int to shortint
 
                 s_axis_tdata = '0; // Clear all data
                 s_axis_tdata[channel_j*16 +: 16] = data_16bit; // Set active channel's data
@@ -133,7 +131,7 @@ module dac_top_tb_file();
             end
         end
 
-        // --- End of Simulation ---
+        // End of Simulation 
         s_axis_tvalid = 0;
         log_enable = 0;
         #5000;
