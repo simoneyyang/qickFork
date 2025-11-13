@@ -7,6 +7,7 @@
 `include "axi/typedef.svh"
 `include "axi/assign.svh"
 
+`timescale 1ns / 1ns
 module tb_verilator();
 
 // DUT generics.
@@ -88,7 +89,7 @@ reg      [15:0]         dout_f;
 localparam int unsigned AxiAddrWidth      =  32'd6;     // Axi Address Width
 localparam int unsigned AxiDataWidth      =  32'd32;    // Axi Data Width
 
-localparam time         ApplTime          =  0ns;
+localparam time         ApplTime          =  100ns;
 localparam time         TestTime          =  0ns;
 
 typedef logic [AxiAddrWidth-1:0] addr_t; // for sign extension
@@ -566,6 +567,7 @@ initial begin
 
    while (tb_write_out) begin
       @(posedge aclk);
+      // $display("%h", m_axis_tdata);
       for (i=0; i<N_DDS; i = i+1) begin
          real_d = dout_ii[i][15:0];
          $fdisplay(fd, "%d, %d, %d", m_axis_tvalid, i, real_d);
