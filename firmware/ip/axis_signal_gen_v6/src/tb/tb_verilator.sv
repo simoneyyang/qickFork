@@ -276,7 +276,7 @@ assign s1_axis_tdata = {{10{1'b0}},phrst_r,stdysel_r,mode_r,outsel_r,nsamp_r,{16
 initial begin
 
    $dumpfile("obj_dir/waveform.vcd");
-   $dumpvars(0, tb_your_design);
+   $dumpvars(0, tb_verilator);
 
 end
 

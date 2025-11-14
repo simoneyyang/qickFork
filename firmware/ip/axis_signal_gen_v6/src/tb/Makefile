@@ -17,7 +17,7 @@ VERILATOR_FLAGS = --binary --exe --build -j 0 -Wall --trace-vcd --Wno-fatal -I$(
 OBJ_DIR = obj_dir
 
 wave:
-	gtkwave trace.vcd
+	gtkwave $(OBJ_DIR)/waveform.vcd
 
 sim: 
 	cp -f $(FIRMWARE_DIR)/ip/sig_gen_dds/LUT_generator/*.hex .
