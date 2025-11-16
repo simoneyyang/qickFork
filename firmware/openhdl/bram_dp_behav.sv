@@ -20,14 +20,14 @@ module bram_dp_behav #(
     
 );
 
-    localparam int DATA_WIDTH      = B           ;
-    localparam int ADDR_WIDTH      = N           ;
-    localparam int ITEMS           = 2**N        ;
-    localparam     WRITE_MODE_A    = "NO_CHANGE" ;
-    localparam     WRITE_MODE_B    = "NO_CHANGE" ;
-    localparam bit OUTPUT_REG      = OUT_REG_ENA ;
-    localparam bit RESET_DATA_PATH = 1           ;
-    localparam bit DEBUG           = 0           ;
+    localparam int DATA_WIDTH      = B                  ;
+    localparam int ADDR_WIDTH      = N                  ;
+    localparam int ITEMS           = 2**N               ;
+    localparam     WRITE_MODE_A    = "NO_CHANGE"        ;
+    localparam     WRITE_MODE_B    = "NO_CHANGE"        ;
+    localparam bit OUTPUT_REG      = (OUT_REG_ENA != 0) ;
+    localparam bit RESET_DATA_PATH = 1                  ;
+    localparam bit DEBUG           = 0                  ;
 
     // interface for Clock A
     logic                  RSTA     ;       // CLK A Sync Reset
@@ -58,7 +58,7 @@ module bram_dp_behav #(
     assign WEA      = wea;
     assign ADDRA    = addra;
     assign DIA      = dia;
-    assign doa      = DIA;
+    assign doa      = DOA;
 
     assign RSTB     = 1'b0;
     assign CLKB     = clkb;
@@ -67,7 +67,7 @@ module bram_dp_behav #(
     assign WEB      = web;
     assign ADDRB    = addrb;
     assign DIB      = dib;
-    assign dob      = DIA;
+    assign dob      = DOB;
 
     // unpacked datatype
     // acces through unpacked then packed e.g. [items][data]
