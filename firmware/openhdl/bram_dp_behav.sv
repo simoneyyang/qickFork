@@ -54,7 +54,7 @@ module bram_dp_behav #(
     assign RSTA     = 1'b0;
     assign CLKA     = clka;
     assign PIPE_ENA = ena;
-    assign REA      = ena;
+    assign REA      = ena & ~wea;
     assign WEA      = wea;
     assign ADDRA    = addra;
     assign DIA      = dia;
@@ -63,7 +63,7 @@ module bram_dp_behav #(
     assign RSTB     = 1'b0;
     assign CLKB     = clkb;
     assign PIPE_ENB = enb;
-    assign REB      = enb;
+    assign REB      = enb & ~web;
     assign WEB      = web;
     assign ADDRB    = addrb;
     assign DIB      = dib;
