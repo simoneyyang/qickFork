@@ -1,1 +1,1 @@
-from .emulator import QickEmulator
+from .emulator import QickEmu

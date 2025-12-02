@@ -3,7 +3,7 @@ import json, pathlib, io, contextlib, os
 from typing import Any, Dict, Optional
 from qick import QickConfig
 
-class QickEmulator:
+class QickEmu:
     """
     Minimal helper:
       - Load a QICK JSON config file and expose a QickConfig for program compilation.
@@ -400,5 +400,5 @@ def _plot_tb_csv(
         plt.close()
 
 # Bind helpers as methods on the existing class
-QickEmulator.run_verilated_mem_tb = _run_verilated_mem_tb
-QickEmulator.plot_tb_csv = _plot_tb_csv
+QickEmu.run_verilated_mem_tb = _run_verilated_mem_tb
+QickEmu.plot_tb_csv = _plot_tb_csv
