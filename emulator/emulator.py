@@ -50,6 +50,7 @@ class QickEmu:
         clean = _stringify_int_keys(self._raw)
         self.cfg_path.write_text(json.dumps(clean, indent=2, sort_keys=True))
         self.reload()
+        
     def get_config_value(self, path_str: str) -> Any:
         """
         Get a value from the raw config dict using a dot-separated path.
