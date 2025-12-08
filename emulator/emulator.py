@@ -11,11 +11,6 @@ class QickEmu:
       - Wrap QICK's existing print_* helpers to ALWAYS write files,
         even if that QICK version only prints to stdout.
       - Drive a Verilated mem-driven TB and plot its CSV output.
-
-    You STILL use your normal QICK flow:
-        soccfg = emu.soccfg
-        prog = YourProgram(soccfg, ...)
-        emu.export_all(prog, outdir="tb_mem")
     """
 
     def __init__(self, qick_config_json: str):
@@ -55,23 +50,6 @@ class QickEmu:
         clean = _stringify_int_keys(self._raw)
         self.cfg_path.write_text(json.dumps(clean, indent=2, sort_keys=True))
         self.reload()
-
-    # simple JSON edits 
-    def set_gen_mixer(self, ch: int, f_MHz: float):
-        gens = self._raw.setdefault("gens", [])
-        while len(gens) <= ch:
-            gens.append({})
-        gens[ch]["mixer_freq"] = float(f_MHz)
-
-    def set_dac_tile_fs(self, tile: int, fs_Msps: float):
-        rf = self._raw.setdefault("rf", {}).setdefault("tiles", {}).setdefault("dac", {})
-        key = str(tile)
-        rf[key] = {**rf.get(key, {}), "fs": float(fs_Msps)}
-
-    def set_adc_tile_fs(self, tile: int, fs_Msps: float):
-        rf = self._raw.setdefault("rf", {}).setdefault("tiles", {}).setdefault("adc", {})
-        key = str(tile)
-        rf[key] = {**rf.get(key, {}), "fs": float(fs_Msps)}
     def get_config_value(self, path_str: str) -> Any:
         """
         Get a value from the raw config dict using a dot-separated path.
