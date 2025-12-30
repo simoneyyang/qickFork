@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Created by .ignore support plugin (hsz.mobi)
 ### JupyterNotebooks template
 # gitignore template for Jupyter Notebooks
@@ -27,6 +26,7 @@ vivado_pid*.str
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # pip
 *.egg-info/
@@ -70,16 +70,19 @@ Temporary Items
 *~
 .*.swp
 
-!/.gitignore
-!/README.md
-=======
+# Virtual environments and build artifacts
 .venv/
-__pycache__/
-*.pyc
 sim_build/
 obj_dir/
 build_tb/
+build_tb_mem/
+
+emulator/build_tb_mem/
+
+# Verilator outputs
 *.fst
 *.vcd
 top_dac*.csv
->>>>>>> 9de73d0 (Initial commit)
+
+!/.gitignore
+!/README.md
