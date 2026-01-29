@@ -76,6 +76,7 @@ sim_build/
 obj_dir/
 build_tb/
 build_tb_mem/
+emulator_output/
 
 emulator/build_tb_mem/
 
