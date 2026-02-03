@@ -1,3 +1,130 @@
+module fifo_behav #(
+    parameter int B = 16, // data width
+    parameter int N = 4   // depth (power of 2 assumed, same as XPM)
+)(
+    input  wire               rstn,
+    input  wire               clk,
+
+    // Write interface
+    input  wire               wr_en,
+    input  wire [B-1:0]       din,
+
+    // Read interface
+    input  wire               rd_en,
+    output logic [B-1:0]       dout,
+
+    // Flags
+    output logic               full,
+    output logic               empty
+);
+
+    // ------------------------------------------------------------
+    // Internal storage
+    // ------------------------------------------------------------
+    logic [B-1:0] mem [0:N-1];
+
+    logic [$clog2(N)-1:0] wr_ptr;
+    logic [$clog2(N)-1:0] rd_ptr;
+    logic [$clog2(N+1)-1:0] count;
+
+    // FWFT internal output
+    logic [B-1:0] dout_int;
+    logic [B-1:0] dout_r;
+
+    // ------------------------------------------------------------
+    // Flags
+    // ------------------------------------------------------------
+    assign empty = (count == 0);
+    assign full  = (count == N);
+
+    // ------------------------------------------------------------
+    // External dout behavior (matches your wrapper)
+    // ------------------------------------------------------------
+    assign dout = (rd_en && !empty) ? dout_int : dout_r;
+
+    always_ff @(posedge clk) begin
+        if (!rstn) begin
+            dout_r <= '0;
+        end else if (rd_en && !empty) begin
+            dout_r <= dout_int;
+        end
+    end
+
+    // ------------------------------------------------------------
+    // FIFO control
+    // ------------------------------------------------------------
+    always_ff @(posedge clk) begin
+        if (!rstn) begin
+            wr_ptr   <= '0;
+            rd_ptr   <= '0;
+            count    <= '0;
+            dout_int <= '0;
+        end else begin
+            // ----------------------------------------
+            // Determine legal operations
+            // ----------------------------------------
+            logic do_write;
+            logic do_read;
+
+            do_write = wr_en && !full;
+            do_read  = rd_en && !empty;
+
+            // ----------------------------------------
+            // Write path
+            // ----------------------------------------
+            if (do_write) begin
+                mem[wr_ptr] <= din;
+                wr_ptr <= wr_ptr + 1'b1;
+            end
+
+            // ----------------------------------------
+            // Read pointer advance
+            // ----------------------------------------
+            if (do_read) begin
+                rd_ptr <= rd_ptr + 1'b1;
+            end
+
+            // ----------------------------------------
+            // Occupancy
+            // ----------------------------------------
+            case ({do_write, do_read})
+                2'b10: count <= count + 1'b1;
+                2'b01: count <= count - 1'b1;
+                default: count <= count;
+            endcase
+
+            // ----------------------------------------
+            // FWFT output logic
+            // ----------------------------------------
+            case ({do_write, do_read})
+                // Write into empty FIFO → FWFT update
+                2'b10: begin
+                    if (count == 0)
+                        dout_int <= din;
+                end
+
+                // Normal read → next word becomes visible
+                2'b01: begin
+                    if (count > 1)
+                        dout_int <= mem[rd_ptr + 1'b1];
+                end
+
+                // Simultaneous read + write
+                2'b11: begin
+                    // If FIFO had exactly 1 entry,
+                    // the write replaces the read → FWFT shows din
+                    if (count == 1)
+                        dout_int <= din;
+                    else
+                        dout_int <= mem[rd_ptr + 1'b1];
+                end
+            endcase
+        end
+    end
+
+endmodule
+
+/*
 // Verilog behavioral implementation of the modified XPM based FIFO in qick/firmware/hdl/fiio_xpm.sv
 
 module fifo_behav 
@@ -90,3 +217,4 @@ module fifo_behav
 
 
 endmodule
+*/
