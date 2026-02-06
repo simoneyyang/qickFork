@@ -1,8 +1,10 @@
 
 module tb;
 
-   logic aresetn, aclk, fifo_wr_en, fifo_rd_en, fifo_empty, fifo_full, fifo_empty_sv, fifo_full_sv;
-   logic [159:0] fifo_din, fifo_dout, dout_sv;
+   logic aresetn, aclk, fifo_wr_en, fifo_rd_en;
+   logic fifo_empty_sv, fifo_full_sv, fifo_empty_xpm, fifo_full_xpm;
+   logic fifo_empty_ai, fifo_full_ai;
+   logic [159:0] fifo_din, fifo_dout_sv, fifo_dout_xpm, fifo_dout_ai;
 
    fifo_behav
    #(
@@ -23,11 +25,37 @@ module tb;
      
       // Read I/F.
       .rd_en    (fifo_rd_en ),
-      .dout     (fifo_dout  ),
+      .dout     (fifo_dout_sv  ),
      
       // Flags.
-      .full   (fifo_full ),
-      .empty  (fifo_empty   )
+      .full   (fifo_full_sv ),
+      .empty  (fifo_empty_sv   )
+   );
+   
+   fifo_behav_ai
+   #(
+      // Data width.
+      .B  (160),
+     
+      // Fifo depth.
+      .N  (16)
+   )
+   DUT_AI
+   (
+      .rstn  (aresetn ),
+      .clk   (aclk    ),
+
+      // Write I/F.
+      .wr_en    (fifo_wr_en ),
+      .din    (fifo_din  ),
+     
+      // Read I/F.
+      .rd_en    (fifo_rd_en ),
+      .dout     (fifo_dout_ai  ),
+     
+      // Flags.
+      .full   (fifo_full_ai ),
+      .empty  (fifo_empty_ai   )
    );
    
    fifo_xpm
@@ -49,11 +77,11 @@ module tb;
      
       // Read I/F.
       .rd_en    (fifo_rd_en ),
-      .dout     (fifo_dout_sv  ),
+      .dout     (fifo_dout_xpm  ),
      
       // Flags.
-      .full   (fifo_full_sv ),
-      .empty  (fifo_empty_sv   )
+      .full   (fifo_full_xpm ),
+      .empty  (fifo_empty_xpm   )
    );
 
    initial begin
@@ -75,80 +103,98 @@ module tb;
    
      #50; @(posedge aclk); // #2;
      
+     @(negedge aclk);
      fifo_rd_en = 1;
      
      #20;
-     
+    @(negedge aclk);     
      fifo_wr_en = 1;
      
      #30;
-     
+     @(negedge aclk);
+
      fifo_rd_en = 0;
 
      
      #170;
-     
+     @(negedge aclk);
+
      fifo_rd_en = 1;
      
      #10;
+     @(negedge aclk);
      
      fifo_wr_en = 0;
      
      #50;
+     @(negedge aclk);
      
      fifo_wr_en = 1;
      
      #10;
+     @(negedge aclk);
      
      fifo_wr_en = 0;
      
      #50;
+     @(negedge aclk);
      
      fifo_rd_en = 0;
      
      #20;
+     @(negedge aclk);
      
      fifo_rd_en = 1;
      
      #10;
+     @(negedge aclk);
      
      fifo_rd_en = 0;
      
      #10;
+     @(negedge aclk);
      
      fifo_rd_en = 1;
      
      #200;
+     @(negedge aclk);
      
      fifo_rd_en = 0;
      
      #20;
+     @(negedge aclk);
      
      fifo_wr_en = 1;
      fifo_rd_en = 1;
      
      #30;
+     @(negedge aclk);
      
      fifo_wr_en = 0;
      fifo_rd_en = 0;
      
      #40;
+     @(negedge aclk);
      
      fifo_wr_en = 1;
      
      #10;
+     @(negedge aclk);
      
      fifo_wr_en = 0;
      
      #50;
+     @(negedge aclk);
      
      fifo_rd_en = 1;
      
      #10;
+     @(negedge aclk);
      
      fifo_rd_en = 0;
      
      #100;
+     @(negedge aclk);
      
      $finish();
    
@@ -157,10 +203,21 @@ module tb;
    always @(posedge aclk) begin
    
      if(aresetn) begin
-       #2; fifo_din <= fifo_din + 1;
+       #2; 
+       @(negedge aclk);
+       fifo_din <= fifo_din + 1;
      end
      
    end
+
+
+  logic [15:0] fifo_din_15_0, fifo_dout_sv_15_0, fifo_dout_xpm_15_0, fifo_dout_ai_15_0;
+  assign fifo_din_15_0 = fifo_din[15:0];
+  assign fifo_dout_sv_15_0 = fifo_dout_sv[15:0];
+  assign fifo_dout_xpm_15_0 = fifo_dout_xpm[15:0];
+  assign fifo_dout_ai_15_0 = fifo_dout_ai[15:0];
+
+
 
 endmodule
 
