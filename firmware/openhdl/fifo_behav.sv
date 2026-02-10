@@ -1,4 +1,4 @@
-module fifo_behav_ai #(
+module fifo_behav #(
     parameter int B = 16, // data width
     parameter int N = 4   // depth (power of 2 assumed, same as XPM)
 )(
@@ -31,10 +31,6 @@ module fifo_behav_ai #(
     logic [B-1:0] dout_int;
     logic [B-1:0] dout_r;
 
-    // 2-cycle write pipeline (to match XPM latency)
-    logic wr_en_d, wr_en_dd;
-    logic [B-1:0] din_d, din_dd;
-
     // ------------------------------------------------------------
     // Flags
     // ------------------------------------------------------------
@@ -54,23 +50,6 @@ module fifo_behav_ai #(
         end
     end
 
-    // ------------------------------------
-    // Write pipeline (2-cycle latency)
-    // ------------------------------------
-    always_ff @(posedge clk) begin
-        if (!rstn) begin
-            wr_en_d  <= 1'b0;
-            wr_en_dd <= 1'b0;
-            din_d    <= '0;
-            din_dd   <= '0;
-        end else begin
-            wr_en_d  <= wr_en;
-            wr_en_dd <= wr_en_d;
-            din_d    <= din;
-            din_dd   <= din_d;
-        end
-    end
-
     // ------------------------------------------------------------
     // FIFO control
     // ------------------------------------------------------------
@@ -83,20 +62,18 @@ module fifo_behav_ai #(
         end else begin
             // ----------------------------------------
             // Determine legal operations
-            // (use delayed write signals for 2-cycle latency)
             // ----------------------------------------
             logic do_write;
             logic do_read;
 
-            // Accept write based on delayed enable and pre-acceptance count
-            do_write = wr_en_dd && (count != N);
+            do_write = wr_en && !full;
             do_read  = rd_en && !empty;
 
             // ----------------------------------------
-            // Write path (uses delayed data from pipeline)
+            // Write path
             // ----------------------------------------
             if (do_write) begin
-                mem[wr_ptr] <= din_dd;
+                mem[wr_ptr] <= din;
                 wr_ptr <= wr_ptr + 1'b1;
             end
 
@@ -117,13 +94,13 @@ module fifo_behav_ai #(
             endcase
 
             // ----------------------------------------
-            // FWFT output logic (uses delayed data)
+            // FWFT output logic
             // ----------------------------------------
             case ({do_write, do_read})
                 // Write into empty FIFO → FWFT update
                 2'b10: begin
                     if (count == 0)
-                        dout_int <= din_dd;
+                        dout_int <= din;
                 end
 
                 // Normal read → next word becomes visible
@@ -135,9 +112,9 @@ module fifo_behav_ai #(
                 // Simultaneous read + write
                 2'b11: begin
                     // If FIFO had exactly 1 entry,
-                    // the write replaces the read → FWFT shows din_dd
+                    // the write replaces the read → FWFT shows din
                     if (count == 1)
-                        dout_int <= din_dd;
+                        dout_int <= din;
                     else
                         dout_int <= mem[rd_ptr + 1'b1];
                 end
@@ -147,8 +124,8 @@ module fifo_behav_ai #(
 
 endmodule
 
-
-// Verilog behavioral implementation of the modified XPM based FIFO in qick/firmware/hdl/fifo_xpm.sv
+/*
+// Verilog behavioral implementation of the modified XPM based FIFO in qick/firmware/hdl/fiio_xpm.sv
 
 module fifo_behav 
 
@@ -240,3 +217,4 @@ module fifo_behav
 
 
 endmodule
+*/

@@ -430,49 +430,71 @@ initial begin
 //   phrst_r        <= 0;
 
    @(posedge aclk);
-   $display("t = %0t", $time);
-   s1_axis_tvalid <= 1;
-   freq_r         <= freq_calc(0, N_DDS, 4);  // 120 MHz.
-   phase_r        <= 0;
-   addr_r         <= 22;
-   gain_r         <= 12000;
-   nsamp_r        <= 80;
-   outsel_r       <= 0; // 0: prod, 1: dds, 2: mem
-   mode_r         <= 0; // 0: nsamp, 1: periodic
-   stdysel_r      <= 0; // 0: last, 1: zero.
-   phrst_r        <= 0;
 
-   #5us;
+   $display("t = %0t", $time);
+   gain_r <= 1000;
+   repeat (25) begin
+      @(negedge aclk);
+      if (~s1_axis_tready) begin
+         s1_axis_tvalid <= 0;
+         wait (s1_axis_tready);
+      end
+      s1_axis_tvalid <= 1;
+      freq_r         <= freq_calc(0, N_DDS, 4);  // 120 MHz.
+      phase_r        <= 0;
+      addr_r         <= 22;
+      gain_r         <= (gain_r + 1001) % 10000;
+      nsamp_r        <= 80;
+      outsel_r       <= 0; // 0: prod, 1: dds, 2: mem
+      mode_r         <= 0; // 0: nsamp, 1: periodic
+      stdysel_r      <= 0; // 0: last, 1: zero.
+      phrst_r        <= 0;
+      @(posedge aclk);
+   end
 
    @(posedge aclk);
    $display("t = %0t", $time);
-   s1_axis_tvalid <= 1;
-   freq_r         <= freq_calc(0, N_DDS, 4);  // 120 MHz.
-   phase_r        <= 0;
-   addr_r         <= 22;
-   gain_r         <= 12000;
-   nsamp_r        <= 80;
-   outsel_r       <= 1; // 0: prod, 1: dds, 2: mem
-   mode_r         <= 0; // 0: nsamp, 1: periodic
-   stdysel_r      <= 0; // 0: last, 1: zero.
-   phrst_r        <= 0;
-
-   #5us;
+   gain_r <= 1000;
+   repeat (25) begin
+      @(negedge aclk);
+      if (~s1_axis_tready) begin
+         s1_axis_tvalid <= 0;
+         wait (s1_axis_tready);
+      end
+      s1_axis_tvalid <= 1;
+      freq_r         <= freq_calc(0, N_DDS, 4);  // 120 MHz.
+      phase_r        <= 0;
+      addr_r         <= 22;
+      gain_r         <= (gain_r + 1001) % 10000;
+      nsamp_r        <= 80;
+      outsel_r       <= 1; // 0: prod, 1: dds, 2: mem
+      mode_r         <= 0; // 0: nsamp, 1: periodic
+      stdysel_r      <= 0; // 0: last, 1: zero.
+      phrst_r        <= 0;
+      @(posedge aclk);
+   end
 
    @(posedge aclk);
    $display("t = %0t", $time);
-   s1_axis_tvalid <= 1;
-   freq_r         <= freq_calc(0, N_DDS, 4);  // 120 MHz.
-   phase_r        <= 0;
-   addr_r         <= 22;
-   gain_r         <= 12000;
-   nsamp_r        <= 80;
-   outsel_r       <= 2; // 0: prod, 1: dds, 2: mem
-   mode_r         <= 0; // 0: nsamp, 1: periodic
-   stdysel_r      <= 0; // 0: last, 1: zero.
-   phrst_r        <= 0;
-
-   #5us;
+   gain_r <= 100;
+   repeat (25) begin
+      @(negedge aclk);
+      if (~s1_axis_tready) begin
+         s1_axis_tvalid <= 0;
+         wait (s1_axis_tready);
+      end
+      s1_axis_tvalid <= 1;
+      freq_r         <= freq_calc(0, N_DDS, 4);  // 120 MHz.
+      phase_r        <= 0;
+      addr_r         <= 22;
+      gain_r         <= 12000;
+      nsamp_r        <= 80;
+      outsel_r       <= 2; // 0: prod, 1: dds, 2: mem
+      mode_r         <= 0; // 0: nsamp, 1: periodic
+      stdysel_r      <= 0; // 0: last, 1: zero.
+      phrst_r        <= 0;
+      @(posedge aclk);
+   end
 
 //   @(posedge aclk);
 //   $display("t = %0t", $time);
