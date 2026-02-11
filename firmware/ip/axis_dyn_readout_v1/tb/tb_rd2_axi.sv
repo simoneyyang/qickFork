@@ -44,7 +44,7 @@ module tb_rd2_axi #(parameter B = 16) ();
     // assert output equivalency on falling edge
     always_ff @(negedge clk) begin
         assert(fifo_rd_en_vhdl == fifo_rd_en_sv) else $error("fifo_rd_en mismatch. vhdl: %d, sv: %d", fifo_rd_en_vhdl, fifo_rd_en_sv);
-        assert(dout_vhdl == dout_sv) else $error("dout mismatch. vhdl: %d, ", dout_vhdl, dout_sv);
-        assert(empty_vhdl == empty_sv) else $error("empty mismatch. vhdl: %d, ", empty_vhdl, empty_sv);
+        assert(dout_vhdl == dout_sv) else $error("dout mismatch. vhdl: %d, sv: %d", dout_vhdl, dout_sv);
+        assert(empty_vhdl == empty_sv) else $error("empty mismatch. vhdl: %d, sv: %d", empty_vhdl, empty_sv);
     end
 endmodule
