@@ -1,4 +1,4 @@
-module tb_binary_gray #(B = 8) ();
+module tb_binary_gray #(parameter B = 8) ();
 
     // Common Inputs
     logic clk;

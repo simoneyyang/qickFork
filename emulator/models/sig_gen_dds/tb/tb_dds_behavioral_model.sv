@@ -17,7 +17,6 @@ reg			resync_r;
 reg	[31:0]	poff_r;
 reg	[31:0]	pinc_r;
 
-integer i;
 
 dds_behavioral_model DUT1 (
     .aclk                   (aclk),

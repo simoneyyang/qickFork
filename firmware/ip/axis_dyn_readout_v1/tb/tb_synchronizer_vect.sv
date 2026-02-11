@@ -1,4 +1,4 @@
-module tb_synchronzier_vect #(parameter N = 2, parameter B = 8) ();
+module tb_synchronizer_vect #(parameter N = 2, parameter B = 8) ();
 
     // common inputs
     logic rstn, clk;
