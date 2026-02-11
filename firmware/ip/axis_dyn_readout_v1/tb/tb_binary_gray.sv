@@ -30,6 +30,6 @@ module tb_binary_gray #(B = 8) ();
     // assert output equivalency on falling edge
     always_ff @(negedge clk) begin
         assert(dout_b2g_vhdl == dout_b2g_sv) else $error("b2g mismatch. vhdl: %d, sv: %d", dout_b2g_vhdl, dout_b2g_sv);
-        assert(dout_g2b_vhdl == dout_g2b_sv) else $error("g2b mismatch. vhdl: %d, ", dout_g2b_vhdl, dout_g2b_sv);
+        assert(dout_g2b_vhdl == dout_g2b_sv) else $error("g2b mismatch. vhdl: %d, sv: %d", dout_g2b_vhdl, dout_g2b_sv);
     end
 endmodule
