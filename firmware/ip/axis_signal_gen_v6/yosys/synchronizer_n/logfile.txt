@@ -1,0 +1,73 @@
+SBY 16:23:48 [synchronizer_n] Removing directory '/Users/abrahamrock/Desktop/ultrastemp/qick/firmware/ip/axis_signal_gen_v6/src/synchronizer_n'.
+SBY 16:23:48 [synchronizer_n] Copy '/Users/abrahamrock/Desktop/ultrastemp/qick/firmware/ip/axis_signal_gen_v6/src/synchronizer_n.vhd' to '/Users/abrahamrock/Desktop/ultrastemp/qick/firmware/ip/axis_signal_gen_v6/src/synchronizer_n/src/synchronizer_n.vhd'.
+SBY 16:23:48 [synchronizer_n] Copy '/Users/abrahamrock/Desktop/ultrastemp/qick/firmware/ip/axis_signal_gen_v6/src/synchronizer_n_sv.sv' to '/Users/abrahamrock/Desktop/ultrastemp/qick/firmware/ip/axis_signal_gen_v6/src/synchronizer_n/src/synchronizer_n_sv.sv'.
+SBY 16:23:48 [synchronizer_n] Copy '/Users/abrahamrock/Desktop/ultrastemp/qick/firmware/ip/axis_signal_gen_v6/src/synchronizer_n_sva.sv' to '/Users/abrahamrock/Desktop/ultrastemp/qick/firmware/ip/axis_signal_gen_v6/src/synchronizer_n/src/synchronizer_n_sva.sv'.
+SBY 16:23:48 [synchronizer_n] engine_0: smtbmc boolector
+SBY 16:23:48 [synchronizer_n] base: starting process "cd synchronizer_n/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 16:23:48 [synchronizer_n] base: synchronizer_n.vhd:23:11:warning: unhandled attribute "async_reg" [-Wunhandled-attribute]
+SBY 16:23:48 [synchronizer_n] base: attribute ASYNC_REG of data_int_reg: signal is "TRUE";
+SBY 16:23:48 [synchronizer_n] base: ^
+SBY 16:23:48 [synchronizer_n] base: finished (returncode=0)
+SBY 16:23:48 [synchronizer_n] prep: starting process "cd synchronizer_n/model; yosys -ql design_prep.log design_prep.ys"
+SBY 16:23:48 [synchronizer_n] prep: finished (returncode=0)
+SBY 16:23:48 [synchronizer_n] smt2: starting process "cd synchronizer_n/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 16:23:48 [synchronizer_n] smt2: finished (returncode=0)
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: starting process "cd synchronizer_n; yosys-smtbmc -s boolector --presat --unroll --noprogress -t 20  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2"
+SBY 16:23:48 [synchronizer_n] engine_0.induction: starting process "cd synchronizer_n; yosys-smtbmc -s boolector --presat --unroll -i --noprogress -t 20  --append 0 --dump-vcd engine_0/trace_induct.vcd --dump-yw engine_0/trace_induct.yw --dump-vlogtb engine_0/trace_induct_tb.v --dump-smtc engine_0/trace_induct.smtc model/design_smt2.smt2"
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Solver: boolector
+SBY 16:23:48 [synchronizer_n] engine_0.induction: ##   0:00:00  Solver: boolector
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 0..
+SBY 16:23:48 [synchronizer_n] engine_0.induction: ##   0:00:00  Trying induction in step 20..
+SBY 16:23:48 [synchronizer_n] engine_0.induction: ##   0:00:00  Temporal induction successful.
+SBY 16:23:48 [synchronizer_n] engine_0.induction: ##   0:00:00  Status: passed
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 0..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 1..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 1..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 2..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 2..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 3..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 3..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 4..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 4..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 5..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 5..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 6..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 6..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 7..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 7..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 8..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 8..
+SBY 16:23:48 [synchronizer_n] engine_0.induction: finished (returncode=0)
+SBY 16:23:48 [synchronizer_n] engine_0.induction: Status returned by engine for induction: pass
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 9..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 9..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 10..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 10..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 11..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 11..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 12..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 12..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 13..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 13..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 14..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 14..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 15..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 15..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 16..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 16..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 17..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 17..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 18..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 18..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assumptions in step 19..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Checking assertions in step 19..
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: ##   0:00:00  Status: passed
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: finished (returncode=0)
+SBY 16:23:48 [synchronizer_n] engine_0.basecase: Status returned by engine for basecase: pass
+SBY 16:23:48 [synchronizer_n] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 16:23:48 [synchronizer_n] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 16:23:48 [synchronizer_n] summary: engine_0 (smtbmc boolector) returned pass for basecase
+SBY 16:23:48 [synchronizer_n] summary: engine_0 (smtbmc boolector) returned pass for induction
+SBY 16:23:48 [synchronizer_n] summary: engine_0 did not produce any traces
+SBY 16:23:48 [synchronizer_n] summary: successful proof by k-induction.
+SBY 16:23:48 [synchronizer_n] DONE (PASS, rc=0)

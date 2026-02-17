@@ -1,0 +1,10 @@
+# running in synchronizer_n/src/
+plugin -i ghdl
+ghdl --std=08 synchronizer_n.vhd -e synchronizer_n
+read_verilog -sv -formal synchronizer_n_sv.sv
+read_verilog -sv -formal synchronizer_n_sva.sv
+prep -top synchronizer_n_sv
+hierarchy -smtcheck
+rename -witness
+write_jny -no-connections ../model/design.json
+write_rtlil ../model/design.il
