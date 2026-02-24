@@ -43,7 +43,7 @@ parameter ENVELOPE_TYPE = "COMPLEX";
 
 // Emulator flag to conditionally instantiate 
 // behavioral models in place of VHDL/Xilinx ip
-parameter EMULATOR = 0
+parameter EMULATOR = 0;
 
 /*********/
 /* Ports */
