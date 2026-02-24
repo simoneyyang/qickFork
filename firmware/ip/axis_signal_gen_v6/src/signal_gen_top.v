@@ -238,7 +238,7 @@ generate
       /***********************/
       // Memory for Real Part.
 
-      dp_bmem_xpm
+      bram_dp_xpm
       #(
          .OUT_REG_ENA   (1),
          // Memory address size.
@@ -264,7 +264,7 @@ generate
 
         if (ENVELOPE_TYPE == "COMPLEX") begin
             // Memory for Imaginary Part.
-            dp_bmem_xpm
+            bram_dp_xpm
             #(
                .OUT_REG_ENA   (1),
                // Memory address size.
