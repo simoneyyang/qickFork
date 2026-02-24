@@ -435,16 +435,132 @@ class QickEmu:
                 fn(*args, **kwargs)
             out_path.write_text(buf.getvalue())
 
-    def run_verilated_mem_tb(self, **kwargs):
-        cfg = VerilatorBackendConfig(
-            verilog_dir=kwargs.get("verilog_dir"),
-            top_module=kwargs.get("top_module"),
-            sources=kwargs.get("sources"),
-            build_dir=kwargs.get("build_dir", "build_tb_mem"),
-            enable_wave=kwargs.get("enable_wave", False)
-        )
-        self.backend = VerilatorBackend(cfg)
-        return self.backend.run(
-            memdir="emulator", 
-            axi_script="emulator/axi_replay.jsonl"
-        )
+    # def run_verilated_mem_tb(self, **kwargs):
+    #     cfg = VerilatorBackendConfig(
+    #         verilog_dir=kwargs.get("verilog_dir"),
+    #         top_module=kwargs.get("top_module"),
+    #         sources=kwargs.get("sources"),
+    #         build_dir=kwargs.get("build_dir", "build_tb_mem"),
+    #         enable_wave=kwargs.get("enable_wave", False)
+    #     )
+    #     self.backend = VerilatorBackend(cfg)
+    #     return self.backend.run(
+    #         memdir="emulator", 
+    #         axi_script="emulator/axi_replay.jsonl"
+    #     )
+    # =========================================================================
+    # TEMPORARY VERILATOR RUNNER & PLOTTER
+    # =========================================================================
+
+    def run_verilated_mem_tb(
+        self,
+        mem_file,
+        verilog_dir=None,
+        top_module="dac_top_tb_mem",
+        sources=("dac_top_tb_mem.sv", "dac_top.sv", "dac.sv"),
+        build_dir="build_tb_mem",
+        log_csv_name="top_dac_mem.csv",
+        mem_filename_in_tb="stimulus.mem",
+        enable_wave=False,
+        extra_verilator_args=None,
+        verbose=True,
+    ):
+        import os, shutil, subprocess
+        from pathlib import Path
+
+        verilog_dir = Path(verilog_dir) if verilog_dir is not None else Path.cwd()
+        build_dir = Path(build_dir)
+        build_dir.mkdir(parents=True, exist_ok=True)
+
+        src_paths = [verilog_dir / s for s in sources]
+        for sp in src_paths:
+            if not sp.exists():
+                raise FileNotFoundError(f"Verilog source not found: {sp}")
+
+        verilator = shutil.which("verilator") or "/opt/homebrew/bin/verilator"
+        if not shutil.which("verilator") and not Path(verilator).exists():
+            raise FileNotFoundError("verilator not found in PATH.")
+
+        mem_file = Path(mem_file)
+        if not mem_file.exists():
+            raise FileNotFoundError(f"mem_file not found: {mem_file}")
+        
+        target_mem = build_dir / mem_filename_in_tb
+        try:
+            if target_mem.exists() or target_mem.is_symlink():
+                target_mem.unlink()
+            target_mem.symlink_to(mem_file.resolve())
+        except Exception:
+            shutil.copy2(mem_file, target_mem)
+
+        exe_name = f"V{top_module}"
+        cmd = [str(verilator), "--binary", "-sv", "-Wall", "-Mdir", str(build_dir), "--top-module", top_module]
+        if enable_wave: cmd += ["--trace-fst"]
+        if extra_verilator_args: cmd += list(extra_verilator_args)
+        cmd += [str(p) for p in src_paths]
+
+        if verbose: print("$", " ".join(cmd))
+        subprocess.run(cmd, check=True, cwd=verilog_dir)
+
+        candidates = [build_dir / exe_name, build_dir / f"{exe_name}.exe"]
+        sim_path = next((p for p in candidates if p.exists()), None)
+        if sim_path is None:
+            for p in build_dir.rglob(f"V{top_module}*"):
+                if p.is_file() and os.access(p, os.X_OK):
+                    sim_path = p
+                    break
+        if sim_path is None:
+            raise FileNotFoundError(f"Verilator binary not found under {build_dir}")
+
+        if verbose: print(f"$ (cd {build_dir} && ./{sim_path.name})")
+        subprocess.run([f"./{sim_path.name}"], check=True, cwd=build_dir)
+        
+        out_csv = build_dir / log_csv_name
+        if not out_csv.exists():
+            raise FileNotFoundError(f"Expected CSV not found: {out_csv}")
+        if verbose: print(f"[ok] Wrote {out_csv}")
+        return out_csv
+
+    def plot_tb_csv(
+        self,
+        csv_path,
+        time_col="time_ps",
+        value_cols=("aout_active",),
+        expected_col="expected_out",
+        time_unit="us",
+        labels=None,
+        save_path=None,
+        show=True,
+    ):
+        import csv, math
+        from pathlib import Path
+        import matplotlib.pyplot as plt
+
+        csv_path = Path(csv_path)
+        with csv_path.open(newline="") as f:
+            rows = list(csv.DictReader(f))
+
+        def parse_float(s, default=float("nan")):
+            try: return float(s)
+            except Exception: return default
+
+        times_ps = [parse_float(r.get(time_col, "")) for r in rows]
+        series = {c: [parse_float(r.get(c, "")) for r in rows] for c in value_cols}
+        exp_vals = [parse_float(r.get(expected_col, "")) for r in rows] if expected_col else None
+
+        unit_scale = {"ps": 1.0, "ns": 1e-3, "us": 1e-6, "ms": 1e-9}
+        t = [v * unit_scale[time_unit] for v in times_ps]
+
+        plt.figure()
+        for c in value_cols:
+            plt.plot(t, series[c], label=(labels or {}).get(c, c))
+        if exp_vals and all(not math.isnan(x) for x in exp_vals):
+            plt.plot(t, exp_vals, linestyle="--", label=(labels or {}).get(expected_col, expected_col or "expected"))
+        
+        plt.xlabel(f"time [{time_unit}]")
+        plt.ylabel("value")
+        plt.title("Testbench output vs time")
+        plt.grid(True, which="both", linestyle=":")
+        plt.legend()
+        if show: plt.show()
+        else: plt.close()
