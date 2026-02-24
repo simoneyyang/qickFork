@@ -73,7 +73,8 @@ parameter GEN_DDS = "TRUE";
 parameter ENVELOPE_TYPE = "COMPLEX";
 
 // Emulator flag to conditionally instantiate 
-// behavioral models in place of VHDL/Xilinx ip
+// behavioral models in place of VHDL/Xilinx IP.
+// Valid values: 0 for synthesis (default), non-zero for emulation.
 parameter EMULATOR = 0;
 
 /*********/

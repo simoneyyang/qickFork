@@ -41,8 +41,8 @@ parameter GEN_DDS = "TRUE";
 // COMPLEX: Allow Complex Envelope generation. REAL: Allow only Real envelope generation
 parameter ENVELOPE_TYPE = "COMPLEX";
 
-// Emulator flag to conditionally instantiate 
-// behavioral models in place of VHDL/Xilinx ip
+// Emulator flag to conditionally instantiate behavioral models in place of VHDL/Xilinx IP.
+// Valid values: 0 = synthesis build (use VHDL/Xilinx IP), non-zero = emulation build (use behavioral models).
 parameter EMULATOR = 0;
 
 /*********/
