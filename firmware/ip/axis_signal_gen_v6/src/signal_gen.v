@@ -31,6 +31,9 @@ parameter N_DDS = 16;
 // True: Generate DDS for Envelope Upconversion. False: Remove DDS for Baseband Envelope only
 parameter GEN_DDS = "TRUE";
 
+// Emulator flag to conditionally instantiate behavioral models in place of VHDL/Xilinx IP.
+// Valid values: 0 = synthesis build (use VHDL/Xilinx IP), non-zero = emulation build (use behavioral models).
+parameter EMULATOR = 0;
 
 /*********/
 /* Ports */
@@ -177,16 +180,26 @@ genvar i;
          /***********************/
          /* Block instantiation */
          /***********************/
-         // DDS.
-         // Latency: 10.
-         dds_behavioral_model dds_i 
-            (
+         if (!EMULATOR) begin : gen_dds_compiler
+            // DDS.
+            // Latency: 10.
+            dds_compiler_0 dds_i (
                .aclk                   (clk                          ),
                .s_axis_phase_tvalid    (dds_tvalid_r                 ),
                .s_axis_phase_tdata     (dds_ctrl_int_r[i*72 +: 72]   ),
                .m_axis_data_tvalid     (                             ),
                .m_axis_data_tdata      (dds_dout[i]                  )
             );
+         end
+         else begin : gen_dds_model
+            dds_behavioral_model dds_i (
+               .aclk                   (clk                          ),
+               .s_axis_phase_tvalid    (dds_tvalid_r                 ),
+               .s_axis_phase_tdata     (dds_ctrl_int_r[i*72 +: 72]   ),
+               .m_axis_data_tvalid     (                             ),
+               .m_axis_data_tdata      (dds_dout[i]                  )
+            );
+         end
 
          // Latency for dds_dout (product).
          latency_reg 

@@ -370,8 +370,9 @@ endgenerate
 signal_gen 
    #(
       .N                   (N             ),
-      .N_DDS               (N_DDS            ),
-      .GEN_DDS             (GEN_DDS       )
+      .N_DDS               (N_DDS         ),
+      .GEN_DDS             (GEN_DDS       ),
+      .EMULATOR            (EMULATOR      )
    )
    signal_gen_i
    (

@@ -1,3 +1,6 @@
+.PHONY: help wave sim verilate clean
+.DEFAULT_GOAL := help
+
 TOP_MODULE = tb_verilator
 
 TOP_MODULE_PARAMS = 
@@ -31,3 +34,22 @@ clean:
 	rm -rf $(OBJ_DIR)
 	rm -f trace.vcd
 	rm -f *.o
+
+help:
+	@echo "QICK axis_signal_gen_v6 Testbench Simulator"
+	@echo ""
+	@echo "Usage: make [target]"
+	@echo "If no target is specified, this help message is displayed."
+	@echo ""
+	@echo "Available Targets:"
+	@echo "  verilate    - Compile Verilog/SystemVerilog sources using Verilator"
+	@echo "  sim         - Run the compiled simulation (copies HEX files automatically)"
+	@echo "  wave        - Open the simulation waveform (VCD) file in GTKWave"
+	@echo "  clean       - Remove build artifacts and generated files"
+	@echo "  help        - Display this help message (default when no target given)"
+	@echo ""
+	@echo "Typical Workflow:"
+	@echo "  1. make verilate  - Compile the simulation"
+	@echo "  2. make sim       - Run the simulation"
+	@echo "  3. make wave      - View simulation results"
+	@echo "  4. make clean     - Clean up when done"
