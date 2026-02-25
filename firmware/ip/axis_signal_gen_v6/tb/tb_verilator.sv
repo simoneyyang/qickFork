@@ -216,9 +216,10 @@ axis_signal_gen_v6
     #
     (
       .N             (N          ),
-      .N_DDS         (N_DDS         ),
-      .GEN_DDS       ("FALSE"        ),
-      .ENVELOPE_TYPE ("REAL"     )
+      .N_DDS         (N_DDS      ),
+      .GEN_DDS       ("FALSE"    ),
+      .ENVELOPE_TYPE ("REAL"     ),
+      .EMULATOR      (1          )
     )
    DUT 
    ( 

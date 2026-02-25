@@ -4,11 +4,12 @@ TOP_MODULE_PARAMS =
 # -param EXAMPLE1=32 -param EXAMPLE2=16 
 
 FIRMWARE_DIR = ../../../../
+EMU_DIR = ../../../../emulator/
 
-AXI_DIR = $(FIRMWARE_DIR)/pulp_platform/axi/
-COM_VERIF_DIR = $(FIRMWARE_DIR)/pulp_platform/common_verification/
+AXI_DIR = $(EMU_DIR)/submodules/pulp_platform/axi/
+COM_VERIF_DIR = $(EMU_DIR)/submodules/pulp_platform/common_verification/
 
-VERILOG_SOURCES = $(wildcard ../*.v) $(wildcard ../*.sv) $(wildcard $(FIRMWARE_DIR)/openhdl/*.sv) $(wildcard $(FIRMWARE_DIR)/ip/sig_gen_dds/src/*.sv) $(COM_VERIF_DIR)/src/rand_id_queue.sv $(AXI_DIR)/src/axi_intf.sv $(AXI_DIR)/src/axi_pkg.sv $(AXI_DIR)/src/axi_test.sv ./tb_verilator.sv
+VERILOG_SOURCES = $(wildcard ../src/*.v) $(wildcard ../src/*.sv) $(wildcard ../src/verilog/*.v) $(wildcard ../src/verilog/*.sv) $(wildcard $(EMU_DIR)/models/fifo/*.sv) $(wildcard $(EMU_DIR)/models/bram_dp/*.sv) $(wildcard $(EMU_DIR)/models/sig_gen_dds/src/*.sv) $(COM_VERIF_DIR)/src/rand_id_queue.sv $(AXI_DIR)/src/axi_intf.sv $(AXI_DIR)/src/axi_pkg.sv $(AXI_DIR)/src/axi_test.sv ./tb_verilator.sv
 
 #$(wildcard ../../../hdl/*.sv)
 
@@ -20,7 +21,7 @@ wave:
 	gtkwave $(OBJ_DIR)/waveform.vcd
 
 sim: 
-	cp -f $(FIRMWARE_DIR)/ip/sig_gen_dds/LUT_generator/*.hex .
+	cp -f $(EMU_DIR)/models/sig_gen_dds/LUT_generator/*.hex .
 	./$(OBJ_DIR)/V$(TOP_MODULE)
 
 verilate: 
