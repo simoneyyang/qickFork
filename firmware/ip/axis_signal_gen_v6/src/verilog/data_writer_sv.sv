@@ -89,7 +89,11 @@ module data_writer_sv #(
 
             // Memory address
             if (state == READ_START_ADDR_ST) begin 
-                mem_addr_full <= $unsigned(START_ADDR_REG[NT_LOG2+N-1:0]);
+                // TODO: check which option to keep
+                // (current change)
+                mem_addr_full <= $unsigned(int'(START_ADDR_REG));
+                // (incoming change)
+                // mem_addr_full <= $unsigned(START_ADDR_REG[NT_LOG2+N-1:0]);
             end else if (state == RW_TDATA_ST) begin 
                 mem_addr_full <= mem_addr_full + 1;
             end
