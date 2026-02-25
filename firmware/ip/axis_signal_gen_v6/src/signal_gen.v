@@ -176,7 +176,7 @@ generate
 genvar i;
    for (i=0; i<N_DDS; i=i+1) begin : GEN_dds
    
-      if (GEN_DDS == "TRUE") begin : gen_dds_models
+      if (GEN_DDS == "TRUE") begin : gen_dds_block
          /***********************/
          /* Block instantiation */
          /***********************/
@@ -295,7 +295,7 @@ genvar i;
       /*************/
       /* Registers */
       /*************/
-      if (GEN_DDS == "TRUE") begin : gen_dds_regs
+      if (GEN_DDS == "TRUE") begin : gen_dds_prod_regs
          always @(posedge clk) begin
             if (~rstn) begin
                // DDS output.
@@ -459,15 +459,14 @@ latency_reg
 
 // Registers.
 generate
-if (GEN_DDS == "TRUE") begin : gen_dds_regs
+if (GEN_DDS == "TRUE") begin : gen_dds_input_regs
+   // DDS input control.
    always @(posedge clk) begin
       if (~rstn) begin
-         // DDS intput control.
          dds_tvalid_r   <= 0;
          dds_ctrl_int_r <= 0;
       end
       else begin
-         // DDS intput control.
          dds_tvalid_r   <= 1;
          dds_ctrl_int_r <= dds_ctrl_int;
       end
@@ -476,9 +475,7 @@ end
 endgenerate
 always @(posedge clk) begin
    if (~rstn) begin
-      // Memory address.
       mem_addr_int_r <= 0;
-      // Output enable.
       en_la_r        <= 0;
    end
    else begin

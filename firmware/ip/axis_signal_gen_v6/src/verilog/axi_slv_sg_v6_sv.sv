@@ -129,8 +129,9 @@ module axi_slv_sg_v6_sv #(parameter DATA_WIDTH = 32, parameter ADDR_WIDTH = 6)(
     // Implement memory mapped register select and write logic generation
     assign slv_reg_wren = axi_wready && wvalid && axi_awready && awvalid;
 
-    always_ff@(posedge aclk) begin : decoding_regs_aclk
-        logic [OPT_MEM_ADDR_BITS:0] loc_addr;
+    logic [OPT_MEM_ADDR_BITS:0] loc_addr;
+    assign loc_addr = axi_awaddr[(ADDR_LSB + OPT_MEM_ADDR_BITS):ADDR_LSB];
+    always_ff @(posedge aclk) begin : decoding_regs_aclk
         if (~aresetn) begin 
             slv_reg0 <= 0;
             slv_reg1 <= 0;
@@ -149,28 +150,8 @@ module axi_slv_sg_v6_sv #(parameter DATA_WIDTH = 32, parameter ADDR_WIDTH = 6)(
             slv_reg14 <= 0;
             slv_reg15 <= 0;
         end else begin 
-            /*
-            loc_addr <= axi_awaddr[(ADDR_LSB + OPT_MEM_ADDR_BITS):ADDR_LSB];
-
-            if (slv_reg_wren) begin 
+            if (slv_reg_wren) begin
                 case (loc_addr)
-            */
-            
-            // Replace or augment the code inside the decoding always_ff
-            logic [OPT_MEM_ADDR_BITS:0] write_addr;
-
-            // keep existing capture of axi_awaddr:
-            loc_addr <= axi_awaddr[(ADDR_LSB + OPT_MEM_ADDR_BITS):ADDR_LSB];
-
-            // compute write_addr using incoming awaddr if we're writing in this same cycle
-            if (slv_reg_wren) begin
-                write_addr = awaddr[(ADDR_LSB + OPT_MEM_ADDR_BITS) : ADDR_LSB];
-            end else begin
-                write_addr = loc_addr;
-            end
-
-            if (slv_reg_wren) begin
-                case (write_addr)
                     'b0000: begin
                            for (int byte_index = 0; byte_index < (DATA_WIDTH/8); byte_index++) begin
                              if (wstrb[byte_index]) begin
