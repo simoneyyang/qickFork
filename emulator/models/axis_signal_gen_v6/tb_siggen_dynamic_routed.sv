@@ -105,11 +105,17 @@ reg s0_axis_aclk; reg s0_axis_aresetn; reg [31:0] s0_axis_tdata; wire s0_axis_tr
 reg [159:0] s1_axis_tdata; wire s1_axis_tready; reg s1_axis_tvalid;
 wire [N_DDS*16-1:0] m_axis_tdata; reg m_axis_tready = 1; wire m_axis_tvalid;
 
-axis_signal_gen_v6 #(.N(N), .N_DDS(N_DDS), .GEN_DDS("FALSE"), .ENVELOPE_TYPE("REAL")) DUT ( 
+axis_signal_gen_v6 #(
+    .N(N), 
+    .N_DDS(N_DDS), 
+    .GEN_DDS("FALSE"), 
+    .ENVELOPE_TYPE("REAL"),
+    .EMULATOR(1) // <-- NEW: Force the IP to use Emulator Behavioral Models
+) DUT ( 
     .s_axi_aclk    ( s_axi_aclk              ),
     .s_axi_aresetn ( s_axi_aresetn           ),
     
-    // Configuration Port
+    // Config interface (connected to interconnect)
     .s_axi_awaddr  ( m_axi_awaddr[0][5:0]    ), 
     .s_axi_awprot  ( m_axi_awprot[0]         ),
     .s_axi_awvalid ( m_axi_awvalid[0]        ),
@@ -130,23 +136,23 @@ axis_signal_gen_v6 #(.N(N), .N_DDS(N_DDS), .GEN_DDS("FALSE"), .ENVELOPE_TYPE("RE
     .s_axi_rvalid  ( m_axi_rvalid[0]         ),
     .s_axi_rready  ( m_axi_rready[0]         ),
 
-    // Memory Port
-    .s0_axis_aclk   (s0_axis_aclk    ),
-    .s0_axis_aresetn(s0_axis_aresetn ),
-    .s0_axis_tdata  (s0_axis_tdata   ),
-    .s0_axis_tvalid (s0_axis_tvalid  ),
-    .s0_axis_tready (s0_axis_tready  ),
-
-    // Core Port
+    // Memory load interface
+    .s0_axis_aclk(s0_axis_aclk), 
+    .s0_axis_aresetn(s0_axis_aresetn), 
+    .s0_axis_tdata(s0_axis_tdata), 
+    .s0_axis_tvalid(s0_axis_tvalid), 
+    .s0_axis_tready(s0_axis_tready),
+    
+    // Core Clock and Reset
     .aresetn(aresetn), 
     .aclk(aclk),
-
-    // Command Port
-    .s1_axis_tdata (s1_axis_tdata ),
-    .s1_axis_tvalid(s1_axis_tvalid),
+    
+    // Command interface
+    .s1_axis_tdata(s1_axis_tdata), 
+    .s1_axis_tvalid(s1_axis_tvalid), 
     .s1_axis_tready(s1_axis_tready),
-
-    // Output Port
+    
+    // Output interface
     .m_axis_tready(m_axis_tready), 
     .m_axis_tvalid(m_axis_tvalid), 
     .m_axis_tdata(m_axis_tdata)
@@ -159,6 +165,7 @@ AXI_BUS_DV #(.AXI_ADDR_WIDTH(32), .AXI_DATA_WIDTH(32), .AXI_ID_WIDTH(1), .AXI_US
 reg [31:0] freq_r, phase_r; reg [15:0] addr_r, gain_r, nsamp_r;
 reg [1:0] outsel_r; reg mode_r, stdysel_r, phrst_r;
 
+// Assignment of data out for debugging.
 wire [15:0] dout_ii [0:N_DDS-1];
 generate
 genvar ii;
@@ -167,20 +174,23 @@ for (ii = 0; ii < N_DDS; ii = ii + 1) begin : GEN_debug
 end
 endgenerate
 
-// Fix: Match exactly the 159-bit concat from golden trace
+// Fix: Match exactly the 159-bit concatenation from the reference
 assign s1_axis_tdata = {{10{1'b0}}, phrst_r, stdysel_r, mode_r, outsel_r, nsamp_r, {16{1'b0}}, gain_r, {16{1'b0}}, addr_r, phase_r, freq_r};
 
+// Trace Dump
 initial begin
    $dumpfile("obj_dir/waveform_dynamic_routed.vcd");
    $dumpvars(0, tb_siggen_dynamic_routed);
 end
 
+// Simulation Control Flags
 reg   tb_load_mem       = 0;
 reg   tb_load_mem_done  = 0;
 reg   tb_load_wave      = 0;
 reg   tb_load_wave_done = 0;
 reg   tb_write_out      = 0;
 
+// AXI Replay Logic
 initial begin
    automatic axi_test::axi_lite_rand_master #(.AW(32), .DW(32)) lite_axi_master = new ( vip_master_dv_IF, "VIP_MST");
    automatic axi_pkg::resp_t resp;
@@ -202,9 +212,11 @@ initial begin
    while (!$feof(fd)) begin
        scan_res = $fscanf(fd, "%s %h %h\n", cmd, addr_val, data_val);
        if (scan_res == 3 && cmd == "w") begin
+           $display("t = %0t : Replaying to Interconnect: Addr=%h Data=%h", $time, addr_val, data_val);
            lite_axi_master.write(addr_val, axi_pkg::prot_t'('0), data_val, 8'hF, resp);
+
+           // Detect WE for memory loading
            if (addr_val == 32'h40000004 && data_val == 32'h00000001) begin
-               $display("t = %0t : WE Detected. Triggering Memory Load...", $time);
                tb_load_mem <= 1;
                wait (tb_load_mem_done);
                tb_load_mem <= 0;
@@ -215,24 +227,25 @@ initial begin
 
    #1000;
    
-   // Start recording and pulsing
+   // Start Waveform Generation
    tb_write_out   <= 1;
    tb_load_wave   <= 1;
    wait (tb_load_wave_done);
-   
-   #10us;
+
+   #25us;
    tb_write_out   <= 0;
    #5us;
    $finish;
 end
 
+// Failsafe Timeout
 initial begin
     #1000000; 
     $display("ERROR: Simulation Timed Out!");
     $finish;
 end
 
-// Memory loading logic
+// Memory Loading Logic
 initial begin
    int fd,vali,valq;
    bit signed [15:0] ii,qq;
@@ -253,7 +266,7 @@ initial begin
    tb_load_mem_done <= 1;
 end
 
-// Command sequencing matching Golden Reference exactly
+// Waveform Command Logic - Matched to Golden Trace Sequence
 initial begin
    s1_axis_tvalid <= 0;
    freq_r <= 0; phase_r <= 0; addr_r <= 0; gain_r <= 0; nsamp_r <= 0;
@@ -263,14 +276,14 @@ initial begin
    wait (s1_axis_tready);
    @(posedge aclk);
    
-   // Phase 1: Product Mode
-   $display("t = %0t : Starting Phase 1 (Product - DC)", $time);
+   // Phase 1: Product Mode (25 pulses)
+   $display("t = %0t : Starting Phase 1 (Product)", $time);
    gain_r <= 1000;
    repeat (25) begin
       @(negedge aclk);
       if (~s1_axis_tready) begin s1_axis_tvalid <= 0; wait (s1_axis_tready); end
       s1_axis_tvalid <= 1;
-      freq_r <= 0; // DC Mode
+      freq_r <= 0; // DC mode for matching golden
       phase_r <= 0; addr_r <= 22;
       gain_r <= (gain_r + 1001) % 10000;
       nsamp_r <= 80; outsel_r <= 0; mode_r <= 0; stdysel_r <= 0; phrst_r <= 0;
@@ -280,14 +293,14 @@ initial begin
    s1_axis_tvalid <= 0;
    repeat(50) @(posedge aclk);
 
-   // Phase 2: DDS Only
-   $display("t = %0t : Starting Phase 2 (DDS Only - DC)", $time);
+   // Phase 2: DDS Only (25 pulses)
+   $display("t = %0t : Starting Phase 2 (DDS Only)", $time);
    gain_r <= 1000;
    repeat (25) begin
       @(negedge aclk);
       if (~s1_axis_tready) begin s1_axis_tvalid <= 0; wait (s1_axis_tready); end
       s1_axis_tvalid <= 1;
-      freq_r <= 0;
+      freq_r <= 0; 
       phase_r <= 0; addr_r <= 22;
       gain_r <= (gain_r + 1001) % 10000;
       nsamp_r <= 80; outsel_r <= 1; mode_r <= 0; stdysel_r <= 0; phrst_r <= 0;
@@ -297,16 +310,15 @@ initial begin
    s1_axis_tvalid <= 0;
    repeat(50) @(posedge aclk);
 
-   // Phase 3: Memory Only
+   // Phase 3: Memory Only (25 pulses)
    $display("t = %0t : Starting Phase 3 (Mem Only)", $time);
    gain_r <= 12000;
    repeat (25) begin
       @(negedge aclk);
       if (~s1_axis_tready) begin s1_axis_tvalid <= 0; wait (s1_axis_tready); end
       s1_axis_tvalid <= 1;
-      freq_r <= 0;
+      freq_r <= 0; 
       phase_r <= 0; addr_r <= 22;
-      gain_r <= 12000;
       nsamp_r <= 80; outsel_r <= 2; mode_r <= 0; stdysel_r <= 0; phrst_r <= 0;
       @(posedge aclk);
    end
@@ -316,7 +328,7 @@ initial begin
    tb_load_wave_done <= 1;
 end
 
-// Data Writer matching Golden CSV format
+// Data Writer
 initial begin
    int fd;
    int i;
@@ -328,13 +340,14 @@ initial begin
       @(posedge aclk);
       for (i=0; i<N_DDS; i = i+1) begin
          real_d = dout_ii[i][15:0];
-         // Formatting matching Golden CSV padding exactly
+         // Matched exact spacing of golden trace CSV
          $fdisplay(fd, "%d,           %d,   %d", m_axis_tvalid, i, real_d);
       end
    end
    $fclose(fd);
 end
 
+// Clocks
 always begin s_axi_aclk <= 0; #10; s_axi_aclk <= 1; #10; end
 always begin s0_axis_aclk <= 0; #10; s0_axis_aclk <= 1; #10; end
 always begin
