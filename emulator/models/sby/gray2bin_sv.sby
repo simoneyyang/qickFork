@@ -1,0 +1,23 @@
+[options]
+mode prove
+depth 100
+
+[engines]
+smtbmc boolector
+
+[files]
+../verilog/gray2bin_sv.sv
+../vhdl/gray2bin.vhd
+gray2bin_sv_sva.sv
+
+[script]
+plugin -i ghdl
+setenv GHDL /opt/homebrew/bin/ghdl
+setenv GHDL_PREFIX /opt/homebrew/Caskroom/ghdl/5.1.1/ghdl-llvm-5.1.1-macos15-aarch64/lib/ghdl
+# Analyze VHDL
+ghdl --std=08 gray2bin.vhd -e gray2bin
+# Analyze SV - Must include the SV synchronizer now
+read_verilog -sv -formal gray2bin_sv.sv
+read_verilog -sv -formal gray2bin_sv_sva.sv
+# Elaborate SV top
+prep -top gray2bin_sv_sva
