@@ -1,13 +1,3 @@
-// ============================================================================
-// FIR Filter Testbench (Dual Path, Decimation by 8)
-// Author: Troy Kaufman
-// Date: 11/07/2025
-// ----------------------------------------------------------------------------
-// Tests a 2 Path, 8 lane 16-bit input decimation by 8 FIR filter. Inputs 
-// include impulses, steps, and sinusoids. A golden reference model was created  
-// to test the design against using the same inputs. 
-// ============================================================================
-
 `timescale 1ns/1ps
 
 module fir_tb;

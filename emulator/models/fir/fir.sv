@@ -1,16 +1,3 @@
-
-// ============================================================================
-// FIR Filter (Dual Path, Decimation by 8)
-// Author: Troy Kaufman
-// Date: 11/05/2025
-// ----------------------------------------------------------------------------
-// Implements a 2-path FIR filter with 8 parallel input samples per path.
-// Each path has its own 121-tap delay line. The filter coefficients are
-// shared between both channels. Output is decimated by 8.
-// ============================================================================
-
-`timescale 1ns/1ps
-
 module fir #(
     parameter int TAP_COUNT   = 121,   // Number of taps
     parameter int DATA_WIDTH  = 16,    // Input sample width
