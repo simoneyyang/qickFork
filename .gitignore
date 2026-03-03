@@ -66,6 +66,9 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Verilator work directories
+**/obj_dir/
+
 ### Linux template
 *~
 .*.swp
