@@ -192,7 +192,7 @@ def default_addrmap_skeleton() -> AddrMap:
     }
 
     am.reg_defs_by_type["axis_tproc_v2"] = {
-        "CTRL": RegDef(0x00), "CFG": RegDef(0x04),
+        "CTRL": RegDef(0x00), "CFG": RegDef(0x04), "CORE_CFG": RegDef(0x1C),
     }
     # Alias qick_processor to axis_tproc_v2 so your config works
     am.reg_defs_by_type["qick_processor"] = am.reg_defs_by_type["axis_tproc_v2"]
@@ -241,6 +241,42 @@ class MockDDR4Buffer(MockIpDriver):
         self.soc.reg_write(self.fullpath, "ARM", 1, comment="DDR4 Arm")
 
 
+class MockPFBReadout(MockIpDriver):
+    _HAS_OUTSEL_BY_TYPE = {
+        "axis_pfb_readout_v2": True,
+        "axis_pfb_readout_v3": False,
+        "axis_pfb_readout_v4": False,
+    }
+
+    @property
+    def HAS_OUTSEL(self):
+        return self._HAS_OUTSEL_BY_TYPE.get(self.ip_type, False)
+
+    def set_out(self, sel='product'):
+        val = {"product": 0, "input": 1, "dds": 2}[sel]
+        self.soc.reg_write(self.fullpath, "OUTSEL", val, comment=f"PFB outsel={sel}")
+
+    def set_freq_int(self, cfg):
+        out_ch = cfg.get('pfb_port', 0)
+        pfb_ch = cfg.get('pfb_ch', 0)
+        f_int = cfg.get('f_int', 0)
+        self.soc.reg_write(self.fullpath, "NCO_FREQ", f_int, comment=f"PFB ch{pfb_ch}->out{out_ch} freq")
+        self.soc.reg_write(self.fullpath, "PFB_CH", pfb_ch, comment=f"PFB ch{pfb_ch}->out{out_ch} sel")
+
+
+class MockTProc(MockIpDriver):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._core_cfg = 0
+
+    def set_lfsr_cfg(self, mode, core=0):
+        """Configure LFSR mode: 0=disabled, 1=free running, 2=step on s1 read, 3=step on s0 write"""
+        CORE_CFG_LFSR_MASK = 0x3
+        self._core_cfg &= ~(CORE_CFG_LFSR_MASK << (core * 2))
+        self._core_cfg |= (mode & CORE_CFG_LFSR_MASK) << (core * 2)
+        self.soc.reg_write(self.fullpath, "CORE_CFG", self._core_cfg, comment=f"LFSR mode={mode} core={core}")
+
+
 # =============================================================================
 # Emulated Soc
 # =============================================================================
@@ -280,7 +316,16 @@ class SocEmu:
         if 'mr_buf' in self.raw_cfg:
              self.mr_buf = MockIpDriver(self, self.raw_cfg['mr_buf']['fullpath'], self.raw_cfg['mr_buf']['type'])
 
-        self.tproc = MockIpDriver(self, "tproc_0", "axis_tproc_v2")
+        tproc_cfg = self.raw_cfg['tprocs'][0]
+        tproc_path = tproc_cfg.get('fullpath', 'qick_processor_0')
+        self.tproc = MockTProc(self, tproc_path, tproc_cfg['type'])
+
+        # PFB readouts: create mocks and store in a dict keyed by fullpath
+        self._pfb_readouts: Dict[str, MockPFBReadout] = {}
+        for ro in soccfg['readouts']:
+            if 'pfb_readout' in ro['ro_type']:
+                pfb = MockPFBReadout(self, ro['ro_fullpath'], ro['ro_type'])
+                self._pfb_readouts[ro['ro_fullpath']] = pfb
 
     def __getitem__(self, key):
         return self.soccfg[key]
@@ -311,6 +356,17 @@ class SocEmu:
         ro = self.readouts[ch]
         if 'ro_len' in ro_regs:
              self.reg_write(ro.fullpath, "RO_LEN", ro_regs['ro_len'])
+
+    def config_mux_readout(self, pfbpath, cfgs, sel=None):
+        pfb = self._pfb_readouts[pfbpath]
+        if pfb.HAS_OUTSEL:
+            if sel is None: sel = 'product'
+            pfb.set_out(sel)
+        else:
+            if sel is not None:
+                raise RuntimeError("this readout doesn't support configuring sel, you have sel=%s" % (sel))
+        for cfg in cfgs:
+            pfb.set_freq_int(cfg)
 
     def config_avg(self, ch, **kwargs):
         self.avg_bufs[ch].config_avg(**kwargs)
@@ -415,8 +471,15 @@ class QickEmu:
             self._capture_to_file(prog.print_wmem2hex, memdir / "wmem.mem")
             
         gens = self.raw_cfg.get("gens", [])
-        for ch in range(len(gens)):
-            self._capture_to_file(prog.print_sg_mem, memdir / f"sgmem_ch{ch}.mem", sg_idx=ch, gen_file=True)
+        declared_gen_chs = sorted(getattr(prog, 'gen_chs', {}).keys())
+        for ch in declared_gen_chs:
+            if ch < len(gens) and gens[ch].get('maxlen', 0) > 0:
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    prog.print_sg_mem(sg_idx=ch, gen_file=False)
+                content = buf.getvalue()
+                if content.strip():
+                    (memdir / f"sgmem_ch{ch}.mem").write_text(content)
 
         # 4. Start tProc - NEW
         soc.start_tproc()
