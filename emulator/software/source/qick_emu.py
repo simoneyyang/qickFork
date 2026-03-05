@@ -314,7 +314,7 @@ class SocEmu:
             self.ddr4_buf = MockDDR4Buffer(self, self.raw_cfg['ddr4_buf']['fullpath'], self.raw_cfg['ddr4_buf']['type'])
 
         if 'mr_buf' in self.raw_cfg:
-             self.mr_buf = MockIpDriver(self, self.raw_cfg['mr_buf']['fullpath'], self.raw_cfg['mr_buf']['type'])
+            self.mr_buf = MockIpDriver(self, self.raw_cfg['mr_buf']['fullpath'], self.raw_cfg['mr_buf']['type'])
 
         tproc_cfg = self.raw_cfg['tprocs'][0]
         tproc_path = tproc_cfg.get('fullpath', 'qick_processor_0')
@@ -355,7 +355,7 @@ class SocEmu:
     def configure_readout(self, ch, ro_regs):
         ro = self.readouts[ch]
         if 'ro_len' in ro_regs:
-             self.reg_write(ro.fullpath, "RO_LEN", ro_regs['ro_len'])
+            self.reg_write(ro.fullpath, "RO_LEN", ro_regs['ro_len'])
 
     def config_mux_readout(self, pfbpath, cfgs, sel=None):
         pfb = self._pfb_readouts[pfbpath]
@@ -540,6 +540,9 @@ class QickEmu:
             if not sp.exists():
                 raise FileNotFoundError(f"Verilog source not found: {sp}")
 
+        # # TODO: I had to change this path to point to my local verilator installation
+        # # Need to find a way to handle this more robustly across different environments
+        # verilator = "/home/dmartin2/hrl-labs-clinic/verilator/bin/verilator"
         verilator = shutil.which("verilator") or "/opt/homebrew/bin/verilator"
         if not shutil.which("verilator") and not Path(verilator).exists():
             raise FileNotFoundError("verilator not found in PATH.")

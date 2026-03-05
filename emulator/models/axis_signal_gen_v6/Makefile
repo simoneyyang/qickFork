@@ -1,14 +1,37 @@
 # Options: tb_verilator, tb_siggen_dynamic_routed
 TOP_MODULE ?= tb_siggen_dynamic_routed
 
+# -------------------------------------------------------------------------
+# Usage
+# -------------------------------------------------------------------------
+# Typical flow:
+#   1) Build simulator:
+#      make verilate
+#   2) Run simulation:
+#      make sim
+#   3) Open waveform:
+#      make wave
+#
+# Select a different testbench/top module:
+#   make TOP_MODULE=tb_verilator verilate
+#   make TOP_MODULE=tb_verilator sim
+#
+# Available TOP_MODULE values:
+#   - tb_siggen_dynamic_routed (default)
+#   - tb_verilator
+#
+# Cleanup:
+#   make clean
+
 # Paths
 PROJ_ROOT     = ../../../
 FIRMWARE_DIR  = $(PROJ_ROOT)firmware
+SUBMODULES_DIR = $(PROJ_ROOT)emulator/submodules
 IP_SRC_DIR    = $(FIRMWARE_DIR)/ip/axis_signal_gen_v6/src
 IP_VERILOG_DIR = $(IP_SRC_DIR)/verilog
-AXI_DIR       = $(FIRMWARE_DIR)/pulp_platform/axi
-COM_VERIF_DIR = $(FIRMWARE_DIR)/pulp_platform/common_verification
-COMMON_CELLS_DIR = $(FIRMWARE_DIR)/pulp_platform/common_cells
+AXI_DIR       = $(SUBMODULES_DIR)/pulp_platform/axi
+COM_VERIF_DIR = $(SUBMODULES_DIR)/pulp_platform/common_verification
+COMMON_CELLS_DIR = $(SUBMODULES_DIR)/pulp_platform/common_cells
 
 # New Emulator Models Paths (Relative to emulator/models/axis_signal_gen_v6)
 MODELS_DIR      = ../
@@ -91,6 +114,8 @@ VERILATOR_FLAGS = --binary --exe --build -j 0 -Wall --trace-vcd --Wno-fatal \
 
 OBJ_DIR = obj_dir
 
+.PHONY: help verilate sim wave clean
+
 verilate:
 	verilator $(VERILATOR_FLAGS) --top-module $(TOP_MODULE) $(VERILOG_SOURCES)
 
@@ -105,3 +130,20 @@ wave:
 clean:
 	rm -rf $(OBJ_DIR)
 	rm -f *.o *.vcd *.csv *.hex gauss.txt sine_full32.hex
+
+help:
+	@echo "axis_signal_gen_v6 emulator Makefile"
+	@echo ""
+	@echo "Targets:"
+	@echo "  make verilate                      Build Verilator simulation binary"
+	@echo "  make sim                           Run simulation (expects built binary)"
+	@echo "  make wave                          Open generated VCD in GTKWave"
+	@echo "  make clean                         Remove build and generated artifacts"
+	@echo ""
+	@echo "Variables:"
+	@echo "  TOP_MODULE=$(TOP_MODULE)"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make verilate"
+	@echo "  make sim"
+	@echo "  make TOP_MODULE=tb_verilator verilate sim"
