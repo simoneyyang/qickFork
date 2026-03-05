@@ -52,15 +52,11 @@ module axi_slv_avg_buf_sv #(
     output logic [31:0]                  BUF_DR_LEN_REG
 );
 
-    // ------------------------------------------------------------
     // Local parameters
-    // ------------------------------------------------------------
     localparam int ADDR_LSB = (DATA_WIDTH/32) + 1;   // =2 for 32-bit
     localparam int OPT_MEM_ADDR_BITS = 3;             // 16 regs
 
-    // ------------------------------------------------------------
     // Internal AXI signals
-    // ------------------------------------------------------------
     logic [ADDR_WIDTH-1:0] axi_awaddr;
     logic                  axi_awready;
     logic                  axi_wready;
@@ -101,17 +97,13 @@ module axi_slv_avg_buf_sv #(
     logic [DATA_WIDTH-1:0] slv_reg14;
     logic [DATA_WIDTH-1:0] slv_reg15;
 
-    // ------------------------------------------------------------
     // Slave registers (16 x DATA_WIDTH)
-    // ------------------------------------------------------------
     logic [DATA_WIDTH-1:0] slv_reg [0:15];
     logic                  slv_reg_wren;
     logic                  slv_reg_rden;
     logic [DATA_WIDTH-1:0] reg_data_out;
 
-    // ------------------------------------------------------------
     // Write Address Ready
-    // ------------------------------------------------------------
     always_ff @(posedge aclk) begin
         if (!aresetn) begin
             axi_awready <= 1'b0;
@@ -149,9 +141,7 @@ module axi_slv_avg_buf_sv #(
 
     assign slv_reg_wren = axi_wready && wvalid && axi_awready && awvalid;
 
-    // ------------------------------------------------------------
     // Register Write Logic
-    // ------------------------------------------------------------
     logic [OPT_MEM_ADDR_BITS:0] loc_addr;
     assign loc_addr = axi_awaddr[(ADDR_LSB + OPT_MEM_ADDR_BITS):ADDR_LSB];
     always_ff @(posedge aclk) begin
@@ -327,9 +317,7 @@ module axi_slv_avg_buf_sv #(
     end
 
 
-    // ------------------------------------------------------------
     // Write Response
-    // ------------------------------------------------------------
     always_ff @(posedge aclk) begin
         if (!aresetn) begin
             axi_bvalid <= 1'b0;
@@ -344,9 +332,7 @@ module axi_slv_avg_buf_sv #(
         end
     end
 
-    // ------------------------------------------------------------
     // Read Address Channel
-    // ------------------------------------------------------------
     always_ff @(posedge aclk) begin
         if (!aresetn) begin
             axi_arready <= 1'b0;
@@ -411,9 +397,7 @@ end
             axi_rdata <= reg_data_out;
     end
 
-    // ------------------------------------------------------------
     // Register Map Assignments
-    // ------------------------------------------------------------
     assign AVG_START_REG        = slv_reg0[0];
     assign AVG_ADDR_REG         = slv_reg1;
     assign AVG_LEN_REG          = slv_reg2;
