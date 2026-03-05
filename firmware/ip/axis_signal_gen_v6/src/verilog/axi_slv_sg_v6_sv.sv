@@ -1,6 +1,9 @@
 // axi_slv_sg_v6.sv
 // 
 
+// axi_slv_sg_v6.sv
+// 
+
 module axi_slv_sg_v6_sv #(parameter DATA_WIDTH = 32, parameter ADDR_WIDTH = 6)(
     input logic aclk,
     input logic aresetn,
@@ -50,7 +53,7 @@ module axi_slv_sg_v6_sv #(parameter DATA_WIDTH = 32, parameter ADDR_WIDTH = 6)(
     logic [1:0] axi_rresp;
     logic axi_rvalid;
 
-    localparam int ADDR_LSB = (DATA_WIDTH/32)+1;
+    localparam int ADDR_LSB = $clog2(DATA_WIDTH/8); //(DATA_WIDTH/32)+1;
     localparam int OPT_MEM_ADDR_BITS = 3;
 
     // Number of Slave Registers 16
@@ -128,10 +131,10 @@ module axi_slv_sg_v6_sv #(parameter DATA_WIDTH = 32, parameter ADDR_WIDTH = 6)(
 
     // Implement memory mapped register select and write logic generation
     assign slv_reg_wren = axi_wready && wvalid && axi_awready && awvalid;
+    
+    logic [OPT_MEM_ADDR_BITS:0] loc_addr_w;
 
-    logic [OPT_MEM_ADDR_BITS:0] loc_addr;
-    assign loc_addr = axi_awaddr[(ADDR_LSB + OPT_MEM_ADDR_BITS):ADDR_LSB];
-    always_ff @(posedge aclk) begin : decoding_regs_aclk
+    always_ff@(posedge aclk) begin : decoding_regs_aclk
         if (~aresetn) begin 
             slv_reg0 <= 0;
             slv_reg1 <= 0;
@@ -150,9 +153,11 @@ module axi_slv_sg_v6_sv #(parameter DATA_WIDTH = 32, parameter ADDR_WIDTH = 6)(
             slv_reg14 <= 0;
             slv_reg15 <= 0;
         end else begin 
-            if (slv_reg_wren) begin
-                case (loc_addr)
-                    'b0000: begin
+            loc_addr_w = axi_awaddr[(ADDR_LSB + OPT_MEM_ADDR_BITS):ADDR_LSB];
+
+            if (slv_reg_wren) begin 
+                case (loc_addr_w)
+                    4'b0000: begin
                            for (int byte_index = 0; byte_index < (DATA_WIDTH/8); byte_index++) begin
                              if (wstrb[byte_index]) begin
                              slv_reg0[(byte_index*8) +: 8] <= wdata[(byte_index*8) +: 8];
@@ -317,40 +322,6 @@ module axi_slv_sg_v6_sv #(parameter DATA_WIDTH = 32, parameter ADDR_WIDTH = 6)(
         end
     end
 
-
-    /* AI CODE UNTESTED 
-
-    // Signal to capture the completion of the write transaction
-    logic write_transaction_completed;
-
-    // Combinational logic to detect write transaction completion
-    assign write_transaction_completed = axi_awready && awvalid && axi_wready && wvalid;
-
-    // Implement write response logic generation
-    always_ff@(posedge aclk) begin 
-        if (~aresetn) begin 
-            axi_bvalid <= 0;
-            axi_bresp <= 2'b00; // Assuming OKAY response
-        end else begin 
-            if (write_transaction_completed) begin 
-                // Assert bvalid one cycle after the transaction completes
-                axi_bvalid <= 1;
-                axi_bresp <= 2'b00;
-            end else if (bready == 1 && axi_bvalid == 1) begin 
-                // Deassert bvalid when master is ready to receive the response
-                axi_bvalid <= 0;
-            end
-        end
-    end
-*/
-
-// always @(posedge aclk) begin
-//     $display("%0t AWV=%b AWREADY=%b WVAL=%b WREADY=%b slv_reg1=%0h START_ADDR_REG=%0h",
-//              $time, awvalid, awready, wvalid, wready, slv_reg1, START_ADDR_REG);
-// end
-
-    /* END AI CODE */
-
     // Implement axi_arready generation
     always_ff@(posedge aclk) begin 
         if (~aresetn) begin 
@@ -423,6 +394,6 @@ module axi_slv_sg_v6_sv #(parameter DATA_WIDTH = 32, parameter ADDR_WIDTH = 6)(
 
     // Output registers
     assign START_ADDR_REG = slv_reg0;
-    assign WE_REG = slv_reg1;
+    assign WE_REG = slv_reg1[0];
 
 endmodule
