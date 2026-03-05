@@ -1,6 +1,6 @@
-module axi_slv_avg_buf_sv_sva# (
-    parameter int DATA_WIDTH = 32,
-    parameter int ADDR_WIDTH = 6)();
+module axi_slv_avg_buf_sv_sva;
+    localparam int DATA_WIDTH = 32;
+    localparam int ADDR_WIDTH = 6;
 
 // shared 1-bit logic signals
 logic aclk;
@@ -174,8 +174,69 @@ axi_slv_avg_buf ref (
     .BUF_DR_LEN_REG(BUF_DR_LEN_REG_vhd)
 );
 
+    // assume statements
+always @(posedge aclk) begin
+    if ($initstate) begin
+        assume(!aresetn);
+    end
+end
+
+logic past_valid;
+always_ff @(posedge aclk) past_valid <= 1'b1;
+
+// always_ff @(posedge aclk) begin
+//   // First cycle: force reset asserted so $past(...) is safe next cycle
+//   if (!past_valid) begin
+//     assume(!aresetn);
+//   end
+
+//   if (past_valid) begin
+//     // Optional but usually good: once reset is deasserted, keep it deasserted
+//     if ($past(aresetn)) assume(aresetn);
+
+//     // If we're in reset, don't care about AXI signals (or you can constrain them)
+//     if (!aresetn) begin
+//       // nothing
+//     end else begin
+//       // Make ready signals always high (as you already do)
+//       assume(bready);
+//       assume(rready);
+
+//       // -------------------------------
+//       // LOCKSTEP: hold until BOTH accept
+//       // "accept" = valid && ready
+//       // -------------------------------
+
+//       // AW channel: hold address/prot/valid until BOTH slaves handshake
+//       if ($past(awvalid) && !($past(awready_sv) && $past(awready_vhd))) begin
+//         assume(awvalid);
+//         assume(awaddr == $past(awaddr));
+//         assume(awprot == $past(awprot));
+//       end
+
+//       // W channel: hold data/strobes/valid until BOTH slaves handshake
+//       if ($past(wvalid) && !($past(wready_sv) && $past(wready_vhd))) begin
+//         assume(wvalid);
+//         assume(wdata == $past(wdata));
+//         assume(wstrb == $past(wstrb));
+//       end
+
+//       // AR channel: hold address/prot/valid until BOTH slaves handshake
+//       if ($past(arvalid) && !($past(arready_sv) && $past(arready_vhd))) begin
+//         assume(arvalid);
+//         assume(araddr == $past(araddr));
+//         assume(arprot == $past(arprot));
+//       end
+//     end
+//   end
+// end
+
+
+
+
+    // assert statements
     always @(posedge aclk) begin 
-        if (resetn) begin 
+        if ((aresetn == 1) && (rvalid_sv == 1) && (rvalid_vhd == 1) && (rready == 1)) begin 
             assert (awready_sv === awready_vhd);
             assert (wready_sv === wready_vhd);
             assert (bresp_sv === bresp_vhd);
