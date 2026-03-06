@@ -13,7 +13,7 @@ module dac(
 
     always_ff @(posedge clk) begin
         // Convert digital input to real and scale
-        aout_reg = vref * ($signed(s_axis_tdata)) / (2.0**(bits-1));
+        aout_reg <= vref * ($signed(s_axis_tdata)) / (2.0**(bits-1));
     end
 
     assign aout = aout_reg;
