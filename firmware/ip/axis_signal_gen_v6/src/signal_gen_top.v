@@ -237,7 +237,8 @@ generate
       /* Block instantiation */
       /***********************/
       // Memory for Real Part.
-      dp_bmem_behav
+      //dp_bmem_behav
+      bram_dp_xpm
       #(
          .OUT_REG_ENA   (1),
          // Memory address size.
@@ -290,6 +291,7 @@ generate
         else begin : gen_real_env_type
             assign mem_dob_imag[i*16 +: 16] = {16{1'b0}}; 
         end
+   end
     
       /*************/
       /* Registers */

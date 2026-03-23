@@ -28,6 +28,9 @@ module data_writer_sv #(
     typedef enum logic [1:0] {INIT_ST, READ_START_ADDR_ST, WAIT_TVALID_ST, RW_TDATA_ST} statetype;
     statetype state;
 
+    logic read_start_addr_state;
+    logic rw_tdata_state;
+
     // WE_REG_resync
     logic WE_REG_resync;
 
@@ -127,7 +130,7 @@ module data_writer_sv #(
     end
 
     // Output logic
-    always_comb begin 
+    always_comb begin // fix logic here!!!
         read_start_addr_state = 0;
         rw_tdata_state = 0;
         tready_i = 0;
