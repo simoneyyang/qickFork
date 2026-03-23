@@ -78,6 +78,9 @@ parameter N_BUF = 10;
 // Number of bits.
 parameter B = 16;
 
+// Emulator flag to conditionally instantiate 
+// behavioral models in place of VHDL/Xilinx IP.
+// Valid values: 0 for synthesis (default), non-zero for emulation.
 parameter EMULATOR = 0;
 
 /*********/

@@ -69,6 +69,11 @@ string TEST_OUT_CONNECTION = "TEST_OUT_LOOPBACK";     // Connect DAC/ADC in Loop
 // string TEST_OUT_CONNECTION = "TEST_OUT_QEMU";         // Qubit Emulator
 //----------------------------------------------------
 
+// Emulator flag to conditionally instantiate 
+// behavioral models in place of VHDL/Xilinx IP.
+// Valid values: 0 for synthesis (default), non-zero for emulation.
+parameter EMULATOR = 0;
+
 // VIP Agents
 axi_mst_0_mst_t     axi_mst_tproc_agent;
 axi_mst_0_mst_t     axi_mst_sg_agent;
@@ -730,7 +735,7 @@ reg qcom_rdy_i, qp2_rdy_i;
    // axis_signal_gen_v6_0 parameters
    localparam N       = 10;
    localparam N_DDS   = 16;
-   localparam EMULATOR = 0;
+
 
    axis_signal_gen_v6 #(
       .N                   (N                ),
@@ -1285,7 +1290,8 @@ reg qcom_rdy_i, qp2_rdy_i;
    axis_avg_buffer #(
       .N_AVG                  (13               ),
       .N_BUF                  (12               ),
-      .B                      (16               )
+      .B                      (16               ),
+      .EMULATOR               (EMULATOR         )
    )
    u_axis_avg_buffer_0 ( 
       // AXI Slave I/F for configuration.
