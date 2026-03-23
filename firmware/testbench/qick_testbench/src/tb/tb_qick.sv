@@ -730,13 +730,15 @@ reg qcom_rdy_i, qp2_rdy_i;
    // axis_signal_gen_v6_0 parameters
    localparam N       = 10;
    localparam N_DDS   = 16;
+   localparam EMULATOR = 0;
 
    axis_signal_gen_v6 #(
       .N                   (N                ),
       .N_DDS               (N_DDS            ),
       .GEN_DDS             ("TRUE"           ),
       // .GEN_DDS             ("FALSE"           ),
-      .ENVELOPE_TYPE       ("COMPLEX"        )
+      .ENVELOPE_TYPE       ("COMPLEX"        ),
+      .EMULATOR            (EMULATOR        )
    )
    u_axis_signal_gen_v6_0 ( 
       // AXI Slave I/F for configuration.
