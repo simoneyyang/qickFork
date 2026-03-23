@@ -118,7 +118,7 @@ generate
          );
       
    
-  end else begin addsub_custom:
+  end else begin: addsub_custom
   
          // Time Operation
          // NOTE: code to infer the DSP, although not sure if it does exactly the same
