@@ -40,8 +40,7 @@ module axis_qick_processor # (
    parameter OUT_DPORT_QTY  =  1 , // Number of Output Data Ports
    parameter OUT_DPORT_DW   =  4 , // BitSize of Output Data Ports
    parameter OUT_WPORT_QTY  =  1 ,  // Number of Output Wave Ports
-   parameter CALL_DEPTH     =  255, // Nested Functions
-   parameter EMULATOR       =  0
+   parameter CALL_DEPTH     =  255 // Nested Functions
 
 )(
 // Core, Time and AXI CLK & RST.
@@ -409,8 +408,7 @@ qick_processor# (
    .OUT_TRIG_QTY   ( OUT_TRIG_QTY   ),
    .OUT_DPORT_QTY  ( OUT_DPORT_QTY  ),
    .OUT_DPORT_DW   ( OUT_DPORT_DW   ),
-   .OUT_WPORT_QTY  ( OUT_WPORT_QTY  ),
-   .EMULATOR       (EMULATOR        )
+   .OUT_WPORT_QTY  ( OUT_WPORT_QTY  )
 ) QPROC (
    .t_clk_i             ( t_clk_i               ) ,
    .t_rst_ni            ( t_resetn              ) ,
