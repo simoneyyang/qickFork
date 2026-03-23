@@ -118,7 +118,8 @@ if (!EMULATOR) begin : gen_synchronizer_AVG
 			.data_in	(AVG_START_REG			),
 			.data_out	(AVG_START_REG_resync	)
 		);
-end else begin gen_synchronizer_AVG_sv
+		
+end else begin: gen_synchronizer_AVG_sv
 	synchronizer_n
 		#(
 			.N	(2)

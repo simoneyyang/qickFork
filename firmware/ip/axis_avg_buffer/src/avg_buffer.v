@@ -164,7 +164,7 @@ endgenerate
 avg_top 
 	#(
 		.N	(N_AVG	),
-		.B	(B		).
+		.B	(B		),
 		.EMULATOR (EMULATOR)
 	)
 	avg_top_i
