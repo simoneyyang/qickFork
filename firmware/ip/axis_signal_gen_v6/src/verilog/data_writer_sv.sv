@@ -131,13 +131,35 @@ module data_writer_sv #(
 
     // Output logic
     always_comb begin // fix logic here!!!
-        read_start_addr_state = 0;
-        rw_tdata_state = 0;
-        tready_i = 0;
+        // read_start_addr_state = 0;
+        // rw_tdata_state = 0;
+        // tready_i = 0;
         case (state)
-            WAIT_TVALID_ST: tready_i = 1;
-            RW_TDATA_ST:    tready_i = 1;
-            default:        tready_i = 0;
+            INIT_ST: begin
+                read_start_addr_state = 0;
+                rw_tdata_state = 0;
+                tready_i = 0;
+            end
+            READ_START_ADDR_ST: begin 
+                read_start_addr_state = 1;
+                rw_tdata_state = 0;
+                tready_i = 0;
+            end
+            WAIT_TVALID_ST: begin
+                read_start_addr_state = 0;
+                rw_tdata_state = 0;
+                tready_i = 1;
+            end
+            RW_TDATA_ST: begin
+                read_start_addr_state = 0;
+                rw_tdata_state = 1;
+                tready_i = 1;
+            end 
+            default: begin
+                read_start_addr_state = 0;
+                rw_tdata_state = 0;
+                tready_i = 0;
+            end
         endcase
     end
 

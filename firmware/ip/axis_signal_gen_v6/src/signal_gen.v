@@ -33,7 +33,7 @@ parameter GEN_DDS = "TRUE";
 
 // Emulator flag to conditionally instantiate behavioral models in place of VHDL/Xilinx IP.
 // Valid values: 0 = synthesis build (use VHDL/Xilinx IP), non-zero = emulation build (use behavioral models).
-parameter EMULATOR = 0;
+parameter EMULATOR = 1;
 
 /*********/
 /* Ports */
