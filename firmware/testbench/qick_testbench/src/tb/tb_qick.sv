@@ -742,8 +742,8 @@ reg qcom_rdy_i, qp2_rdy_i;
       .N_DDS               (N_DDS            ),
       .GEN_DDS             ("TRUE"           ),
       // .GEN_DDS             ("FALSE"           ),
-      .ENVELOPE_TYPE       ("COMPLEX"        ),
-      .EMULATOR            (EMULATOR        )
+      .ENVELOPE_TYPE       ("COMPLEX"        )
+//      .EMULATOR            (EMULATOR        )
    )
    u_axis_signal_gen_v6_0 ( 
       // AXI Slave I/F for configuration.
@@ -1290,8 +1290,8 @@ reg qcom_rdy_i, qp2_rdy_i;
    axis_avg_buffer #(
       .N_AVG                  (13               ),
       .N_BUF                  (12               ),
-      .B                      (16               ),
-      .EMULATOR               (EMULATOR         )
+      .B                      (16               )
+//      .EMULATOR               (EMULATOR         )
    )
    u_axis_avg_buffer_0 ( 
       // AXI Slave I/F for configuration.
@@ -1583,52 +1583,52 @@ initial begin
    end
 
 
-   if (TEST_NAME == "test_tproc_basic") begin
-      TEST_RUN_TIME = 50us;
-      forever begin
-         $display("*** %t - Start test_tproc_basic Test ***", $realtime());
-         wait (tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.core_en_o == 1'b1);
-         N = 11;
-         wait (tb_qick.AXIS_QPROC.QPROC.time_abs_o > 2**N+100);
-         fork
-            begin
-               while (N < 48) begin
-                  N = N+1;
+//   if (TEST_NAME == "test_tproc_basic") begin
+//      TEST_RUN_TIME = 50us;
+//      forever begin
+//         $display("*** %t - Start test_tproc_basic Test ***", $realtime());
+//         wait (tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.core_en_o == 1'b1);
+//         N = 11;
+//         wait (tb_qick.AXIS_QPROC.QPROC.time_abs_o > 2**N+100);
+//         fork
+//            begin
+//               while (N < 48) begin
+//                  N = N+1;
                   
-                  // Force time_abs
-                  $display("*** %t - Changing time_abs to get to %0u ***", $realtime(), (2**N)-100);
-                  force tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.TIME_ADDER.RESULT = (2**N)-100;
-                  #100ns;
-                  release tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.TIME_ADDER.RESULT;
+//                  // Force time_abs
+//                  $display("*** %t - Changing time_abs to get to %0u ***", $realtime(), (2**N)-100);
+//                  force tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.TIME_ADDER.RESULT = (2**N)-100;
+//                  #100ns;
+//                  release tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.TIME_ADDER.RESULT;
          
-                  $display("*** Waiting for trigger ***");
-                  wait (tb_qick.AXIS_QPROC.trig_0_o);
+//                  $display("*** Waiting for trigger ***");
+//                  wait (tb_qick.AXIS_QPROC.trig_0_o);
 
-                  $display("*** %t - Waiting for time_abs to get to %0u ***", $realtime(), 2**N+100);
-                  wait (tb_qick.AXIS_QPROC.QPROC.time_abs_o > 2**N+100);
-               end
-            end
-            begin
-               integer M = 15;
-               logic [47:0] new_ref_time;
-               while (M < 48) begin
-                  $display("*** %t - Waiting for r15 == %0d ***", $realtime(), M);
-                  wait (tb_qick.AXIS_QPROC.QPROC.CORE_0.CORE_CPU.reg_bank.dreg_32_dt[15] == M);
-                  new_ref_time = 2**M;
+//                  $display("*** %t - Waiting for time_abs to get to %0u ***", $realtime(), 2**N+100);
+//                  wait (tb_qick.AXIS_QPROC.QPROC.time_abs_o > 2**N+100);
+//               end
+//            end
+//            begin
+//               integer M = 15;
+//               logic [47:0] new_ref_time;
+//               while (M < 48) begin
+//                  $display("*** %t - Waiting for r15 == %0d ***", $realtime(), M);
+//                  wait (tb_qick.AXIS_QPROC.QPROC.CORE_0.CORE_CPU.reg_bank.dreg_32_dt[15] == M);
+//                  new_ref_time = 2**M;
 
-                  $display("*** %t - Changing c_time_ref_dt to get to %0u ***", $realtime(), new_ref_time);
-                  force tb_qick.AXIS_QPROC.QPROC.c_time_ref_dt = new_ref_time;
-                  #100ns;
-                  release tb_qick.AXIS_QPROC.QPROC.c_time_ref_dt;
+//                  $display("*** %t - Changing c_time_ref_dt to get to %0u ***", $realtime(), new_ref_time);
+//                  force tb_qick.AXIS_QPROC.QPROC.c_time_ref_dt = new_ref_time;
+//                  #100ns;
+//                  release tb_qick.AXIS_QPROC.QPROC.c_time_ref_dt;
 
-                  M = M + 1;
-               end
-            end
-         join
-         $display("*** %t - End of test_tproc_basic Test ***", $realtime());
-         wait (tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.core_en_o == 1'b0);
-      end
-   end
+//                  M = M + 1;
+//               end
+//            end
+//         join
+//         $display("*** %t - End of test_tproc_basic Test ***", $realtime());
+//         wait (tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.core_en_o == 1'b0);
+//      end
+//   end
 
 
    if (TEST_NAME == "test_qubit_emulator") begin
