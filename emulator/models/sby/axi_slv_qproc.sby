@@ -6,8 +6,8 @@ depth 20
 smtbmc boolector
 
 [files]
-axi_slv_qproc.vhd
-axi_slv_qproc_sv.sv
+../../../firmware/ip/qick_processor/src/verilog/axi_slv_qproc.vhd
+../../../firmware/ip/qick_processor/src/verilog/axi_slv_qproc_sv.sv
 axi_slv_qproc_sva.sv
 
 [script]
