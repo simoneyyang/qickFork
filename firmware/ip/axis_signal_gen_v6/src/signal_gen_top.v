@@ -237,8 +237,71 @@ generate
       /* Block instantiation */
       /***********************/
       // Memory for Real Part.
-      //dp_bmem_behav
+
       bram_dp_xpm
+      #(
+         .OUT_REG_ENA   (1),
+         // Memory address size.
+         .N  (N),
+         // Data width.
+         .B  (16)
+      )
+      mem_real_i
+      ( 
+         .clka    (s0_axis_aclk           ),
+         .clkb    (aclk                 ),
+         .ena     (mem_ena[i]           ),
+         .enb     (1'b1                 ),
+         .wea     (mem_wea              ),
+         .web     (1'b0                 ),
+         .addra   (mem_addra               ),
+         .addrb   (mem_addrb               ),
+         .dia     (mem_dia[15:0]           ),
+         .dib     (16'h0000             ),
+         .doa     (                     ),
+         .dob     (mem_dob_real[i*16 +: 16]   )
+      );
+
+        if (ENVELOPE_TYPE == "COMPLEX") begin
+            // Memory for Imaginary Part.
+            bram_dp_xpm
+            #(
+               .OUT_REG_ENA   (1),
+               // Memory address size.
+               .N  (N),
+               // Data width.
+               .B  (16)
+            )
+            mem_imag_i
+            ( 
+               .clka    (s0_axis_aclk            ),
+               .clkb    (aclk                 ),
+               .ena     (mem_ena[i]           ),
+               .enb     (1'b1                 ),
+               .wea     (mem_wea              ),
+               .web     (1'b0                 ),
+               .addra   (mem_addra               ),
+               .addrb   (mem_addrb               ),
+               .dia     (mem_dia[31:16]       ),
+               .dib     (16'h0000             ),
+               .doa     (                     ),
+               .dob     (mem_dob_imag[i*16 +: 16]   )
+            );
+        end
+        else begin
+            assign mem_dob_imag[i*16 +: 16] = {16{1'b0}}; 
+        end
+      end
+
+   end else begin : gen_mem_emu
+
+   for (i=0; i<N_DDS; i=i+1) begin : GEN_mem
+      /***********************/
+      /* Block instantiation */
+      /***********************/
+      // Memory for Real Part.
+
+      bram_dp_behav
       #(
          .OUT_REG_ENA   (1),
          // Memory address size.
@@ -291,7 +354,7 @@ generate
         else begin : gen_real_env_type
             assign mem_dob_imag[i*16 +: 16] = {16{1'b0}}; 
         end
-   end
+      end
     
       /*************/
       /* Registers */

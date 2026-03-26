@@ -31,7 +31,7 @@ module down_conversion_fir (
 localparam [15:0] N_DDS = 8;
 
 // Emulator parameter
-parameter EMULATOR = 0;
+parameter EMULATOR = 1;
 
 /*********/
 /* Ports */
@@ -117,5 +117,10 @@ generate
 			);
 	end
 endgenerate
+
+// debugging signals
+wire signed [15:0] fir_l_dbg, fir_h_dbg;
+assign fir_l_dbg = m1_axis_tdata_o[15:0];
+assign fir_h_dbg = m1_axis_tdata_o[31:16];
 endmodule
 
