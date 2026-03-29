@@ -81,10 +81,13 @@ module fir #(
             for (int i = TAP_COUNT-1; i >= P_SAMPLES; i--) begin
                     taps0[i] <= $signed(taps0[i-P_SAMPLES]);
                     taps1[i] <= $signed(taps1[i-P_SAMPLES]);
-            end 
+            end
+            //for (int j = 0; j < P_SAMPLES; j++) begin 
             for (int j = P_SAMPLES-1; j >= 0; j--) begin
-                taps0[j] <= $signed(s_tdata[(j*DATA_WIDTH) +: DATA_WIDTH]);
-                taps1[j] <= $signed(s_tdata[(j*DATA_WIDTH + 'd128) +: DATA_WIDTH]);
+                // taps0[j] <= $signed(s_tdata[(j*DATA_WIDTH) +: DATA_WIDTH]);
+                // taps1[j] <= $signed(s_tdata[(j*DATA_WIDTH + 'd128) +: DATA_WIDTH]);
+                taps0[j] <= $signed(s_tdata[(2*(j*DATA_WIDTH)) +: DATA_WIDTH]); // 
+                taps1[j] <= $signed(s_tdata[(2*(j*DATA_WIDTH) + DATA_WIDTH) +: DATA_WIDTH]);
             end
     end
     end
@@ -106,7 +109,8 @@ module fir #(
             end
             acc0            = temp_acc0>>>19;
             acc1            = (temp_acc1>>>19)<<16;
-            t_data_next     = {acc1[31:16], acc0}; 
+            t_data_next     = {acc1[31:16], acc0};
+            //t_data_next     = {acc0, acc1[31:16]}; 
             m_tvalid_next   = 1;
         end else begin
             m_tvalid_next   = 0;
@@ -123,7 +127,7 @@ module fir #(
             end
             delay_tvalid <= '0;
         end else begin
-            for(int i = 0; i < 'd65; i++) begin 
+            for(int i = 0; i < 'd66; i++) begin 
                 delay_tdata[i+1] <= delay_tdata[i];
             end
             
@@ -139,8 +143,8 @@ module fir #(
     always_ff@(posedge clk) begin 
         if (!nrst) begin
             m_tdata <= '0;
-        end else if (m_tvalid && (delay_tvalid[1] && delay_tvalid[0])) begin // ensures the final output is consistent with Xilinx's implementation
-        //end else if (m_tvalid) begin // ensures the final output is consistent with Xilinx's implementation
+        //end else if (m_tvalid && (delay_tvalid[1] && delay_tvalid[0])) begin // ensures the final output is consistent with Xilinx's implementation
+        end else if (m_tvalid) begin // ensures the final output is consistent with Xilinx's implementation
             m_tdata <= delay_tdata[65];
         end
     
