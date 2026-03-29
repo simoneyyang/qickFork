@@ -61,7 +61,7 @@ def main():
     ap.add_argument(
         "--outfile",
         type=Path,
-        default=Path("sine_full32.hex"),
+        default=Path("sine__cos_full32.hex"),
         help="Output hex file"
     )
     args = ap.parse_args()
