@@ -302,23 +302,8 @@ module axi_slv_qproc_sv #(parameter DATA_WIDTH = 32, parameter ADDR_WIDTH = 6)(
                         end
                     end
                     default: begin
-                        slv_reg0 <= slv_reg0;
-                        slv_reg1 <= slv_reg1;
-                        slv_reg2 <= slv_reg2;
-                        slv_reg3 <= slv_reg3;
-                        slv_reg4 <= slv_reg4;
-                        slv_reg5 <= slv_reg5;
-                        slv_reg6 <= slv_reg6;
-                        slv_reg7 <= slv_reg7;
-                        slv_reg8 <= slv_reg8;
-                        slv_reg9 <= slv_reg9;
-                        slv_reg10 <= slv_reg10;
-                        slv_reg11 <= slv_reg11;
-                        slv_reg12 <= slv_reg12;
-                        slv_reg13 <= slv_reg13;
-                        slv_reg14 <= slv_reg14;
-                        slv_reg15 <= slv_reg15;
-			end
+                        // No register write on unspecified addresses; registers hold value.
+                    end
                 endcase
         end
         end
