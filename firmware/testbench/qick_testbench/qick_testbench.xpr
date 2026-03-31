@@ -4,7 +4,7 @@
 <!-- Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.                   -->
 <!-- Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.   -->
 
-<Project Product="Vivado" Version="7" Minor="63" Path="/home/dmartin2/Projects/qick_internal_b_43_testbench/firmware/testbench/qick_testbench/qick_testbench.xpr">
+<Project Product="Vivado" Version="7" Minor="63" Path="/home/hrl/troy/qick/firmware/testbench/qick_testbench/qick_testbench.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="ee4101ae9cb9409f8084103e6f2383a5"/>
@@ -61,20 +61,20 @@
     <Option Name="UseIPStaticLibs" Val="0"/>
     <Option Name="EnableBDX" Val="FALSE"/>
     <Option Name="DSABoardId" Val="zcu216"/>
-    <Option Name="WTXSimLaunchSim" Val="836"/>
+    <Option Name="WTXSimLaunchSim" Val="1155"/>
     <Option Name="WTModelSimLaunchSim" Val="0"/>
     <Option Name="WTQuestaLaunchSim" Val="0"/>
     <Option Name="WTIesLaunchSim" Val="0"/>
     <Option Name="WTVcsLaunchSim" Val="0"/>
     <Option Name="WTRivieraLaunchSim" Val="0"/>
     <Option Name="WTActivehdlLaunchSim" Val="0"/>
-    <Option Name="WTXSimExportSim" Val="20"/>
-    <Option Name="WTModelSimExportSim" Val="20"/>
-    <Option Name="WTQuestaExportSim" Val="20"/>
+    <Option Name="WTXSimExportSim" Val="26"/>
+    <Option Name="WTModelSimExportSim" Val="26"/>
+    <Option Name="WTQuestaExportSim" Val="26"/>
     <Option Name="WTIesExportSim" Val="0"/>
-    <Option Name="WTVcsExportSim" Val="20"/>
-    <Option Name="WTRivieraExportSim" Val="20"/>
-    <Option Name="WTActivehdlExportSim" Val="20"/>
+    <Option Name="WTVcsExportSim" Val="26"/>
+    <Option Name="WTRivieraExportSim" Val="26"/>
+    <Option Name="WTActivehdlExportSim" Val="26"/>
     <Option Name="GenerateIPUpgradeLog" Val="TRUE"/>
     <Option Name="XSimRadix" Val="hex"/>
     <Option Name="XSimTimeUnit" Val="ns"/>
@@ -95,6 +95,14 @@
       <File Path="$PPRDIR/../../ip/axis_cdcsync_v1/src/cdcsync.sv">
         <FileInfo>
           <Attr Name="Library" Val="lib_axis_cdcsync_v1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../../emulator/models/fifo/fifo_behav.sv">
+        <FileInfo>
+          <Attr Name="Library" Val="lib_axis_signal_gen_v6"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -530,6 +538,116 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
+      <File Path="$PPRDIR/../../ip/axis_dyn_readout_v1/src/fifo/verilog/rd2axi_sv.sv">
+        <FileInfo>
+          <Attr Name="Library" Val="lib_axis_dyn_readout_v1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../ip/axis_dyn_readout_v1/src/fifo/verilog/gray2bin_sv.sv">
+        <FileInfo>
+          <Attr Name="Library" Val="lib_axis_dyn_readout_v1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../ip/axis_dyn_readout_v1/src/fifo/verilog/bin2gray_sv.sv">
+        <FileInfo>
+          <Attr Name="Library" Val="lib_axis_dyn_readout_v1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../ip/axis_dyn_readout_v1/src/fifo/verilog/synchronizer_vect_sv.sv">
+        <FileInfo>
+          <Attr Name="Library" Val="lib_axis_dyn_readout_v1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../ip/axis_dyn_readout_v1/src/fifo/verilog/fifo_dc_sv.sv">
+        <FileInfo>
+          <Attr Name="Library" Val="lib_axis_dyn_readout_v1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../ip/axis_signal_gen_v6/src/verilog/synchronizer_n_sv.sv">
+        <FileInfo>
+          <Attr Name="Library" Val="lib_axis_signal_gen_v6"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../ip/axis_signal_gen_v6/src/verilog/axi_slv_sg_v6_sv.sv">
+        <FileInfo>
+          <Attr Name="Library" Val="lib_axis_signal_gen_v6"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../ip/axis_signal_gen_v6/src/verilog/data_writer_sv.sv">
+        <FileInfo>
+          <Attr Name="Library" Val="lib_axis_signal_gen_v6"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../../emulator/models/bram_dp/bram_simple_dp_behav.sv">
+        <FileInfo>
+          <Attr Name="Library" Val="lib_axis_dyn_readout_v1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../../emulator/models/bram_dp/bram_dp_behav.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../../emulator/models/fir/fir_coe.txt"/>
+      <File Path="$PPRDIR/../../../emulator/models/sig_gen_dds/LUT_generator/sine_full32.hex"/>
+      <File Path="$PPRDIR/../../../emulator/models/sig_gen_dds/src/dds_behavioral_model.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../../emulator/models/fir/fir.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/bd/design_1/design_1.bd">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../ip/axis_dyn_readout_v1/src/fifo/verilog/fifo_sv.sv">
+        <FileInfo>
+          <Attr Name="Library" Val="lib_axis_dyn_readout_v1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopAutoSet" Val="TRUE"/>
@@ -655,11 +773,17 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
+      <File Path="$PPRDIR/../../ip/axis_dyn_readout_v1/tb/tb.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopModule" Val="tb_qick"/>
         <Option Name="TopLib" Val="xil_defaultlib"/>
-        <Option Name="TopAutoSet" Val="TRUE"/>
         <Option Name="TransportPathDelay" Val="0"/>
         <Option Name="TransportIntDelay" Val="0"/>
         <Option Name="SelectedSimModel" Val="rtl"/>
