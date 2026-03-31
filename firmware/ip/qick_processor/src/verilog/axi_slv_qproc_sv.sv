@@ -110,7 +110,6 @@ module axi_slv_qproc_sv #(parameter DATA_WIDTH = 32, parameter ADDR_WIDTH = 6)(
     // logic [DATA_WIDTH-1:0] reg_data_out;
     // int byte_index;
     // logic aw_en;
-    int byte_index;
 
     //I/O Connections assignments
     assign awready = axi_awready;
