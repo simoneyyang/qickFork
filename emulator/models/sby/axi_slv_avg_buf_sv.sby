@@ -13,7 +13,6 @@ axi_slv_avg_buf_sv_sva.sv
 [script]
 plugin -i ghdl
 setenv GHDL /opt/homebrew/bin/ghdl
-setenv GHDL_PREFIX /opt/homebrew/Caskroom/ghdl/5.1.1/ghdl-llvm-5.1.1-macos15-aarch64/lib/ghdl
 # Analyze VHDL
 ghdl --std=08 axi_slv_avg_buf.vhd -e axi_slv_avg_buf
 # Analyze SV - Must include the SV synchronizer now

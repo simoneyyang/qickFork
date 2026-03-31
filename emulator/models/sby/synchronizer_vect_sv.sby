@@ -6,14 +6,13 @@ depth 100
 smtbmc boolector
 
 [files]
-../verilog/synchronizer_vect_sv.sv
-../vhdl/synchronizer_vect.vhd
+../../../firmware/ip/axis_dyn_readout_v1/src/fifo/verilog/synchronizer_vect_sv.sv
+../../../firmware/ip/axis_dyn_readout_v1/src/fifo/synchronizer_vect.vhd
 synchronizer_vect_sv_sva.sv
 
 [script]
 plugin -i ghdl
 setenv GHDL /opt/homebrew/bin/ghdl
-setenv GHDL_PREFIX /opt/homebrew/Caskroom/ghdl/5.1.1/ghdl-llvm-5.1.1-macos15-aarch64/lib/ghdl
 # Analyze VHDL
 ghdl --std=08 synchronizer_vect.vhd -e synchronizer_vect
 # Analyze SV - Must include the SV synchronizer now

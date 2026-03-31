@@ -6,14 +6,13 @@ depth 100
 smtbmc boolector
 
 [files]
-../verilog/gray2bin_sv.sv
-../vhdl/gray2bin.vhd
+../../../firmware/ip/axis_dyn_readout_v1/src/fifo/verilog/gray2bin_sv.sv
+../../../firmware/ip/axis_dyn_readout_v1/src/fifo/gray2bin.vhd
 gray2bin_sv_sva.sv
 
 [script]
 plugin -i ghdl
 setenv GHDL /opt/homebrew/bin/ghdl
-setenv GHDL_PREFIX /opt/homebrew/Caskroom/ghdl/5.1.1/ghdl-llvm-5.1.1-macos15-aarch64/lib/ghdl
 # Analyze VHDL
 ghdl --std=08 gray2bin.vhd -e gray2bin
 # Analyze SV - Must include the SV synchronizer now

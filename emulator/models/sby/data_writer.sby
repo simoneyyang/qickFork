@@ -6,10 +6,10 @@ depth 30
 smtbmc boolector
 
 [files]
-synchronizer_n.vhd
-synchronizer_n_sv.sv
-data_writer.vhd
-data_writer_sv.sv
+../../../firmware/ip/axis_signal_gen_v6/src/synchronizer_n.vhd
+../../../firmware/ip/axis_signal_gen_v6/src/verilog/synchronizer_n_sv.sv
+../../../firmware/ip/axis_signal_gen_v6/src/data_writer.vhd
+../../../firmware/ip/axis_signal_gen_v6/src/verilog/data_writer_sv.sv
 data_writer_sva.sv
 
 [script]
