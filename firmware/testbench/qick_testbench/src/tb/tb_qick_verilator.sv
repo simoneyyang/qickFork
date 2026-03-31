@@ -302,7 +302,7 @@ reg time_rst_i, time_init_i, time_updt_i;
 
 reg  [47:0] offset_dt_i ;
 wire [47:0] t_time_abs_o ;
-reg time_updt_i;
+// reg time_updt_i; // TODO: DUPLICATE
 
 wire [31:0] ps_debug_do;
 
@@ -459,7 +459,7 @@ reg qcom_rdy_i, qp2_rdy_i;
       .GEN_SYNC            (  `GEN_SYNC         ) ,
       .IO_CTRL             (  `IO_CTRL          ) ,
       .DEBUG               (  `DEBUG            ) ,
-      .TNET                (  `TNET             ) ,
+      .QNET                (  `TNET             ) ,
       .QCOM                (  `QCOM             ) ,
       .CUSTOM_PERIPH       (  `CUSTOM_PERIPH    ) ,
       .LFSR                (  `LFSR             ) ,
@@ -666,16 +666,16 @@ reg qcom_rdy_i, qp2_rdy_i;
    logic [5:0] SG_ADDR_WE           = 32'h40000004; // 1
 // >>>>>>>>>>>> PULP PLATFORM AXI VIP
 
-   reg [31:0]        data_wr              = 32'h12345678;
+// ------------ REMOVED DUPLICATE DECLARATION
+   // reg [31:0]        data_wr              = 32'h12345678;
+// ------------
+
    reg [31:0]        data;
-// <<<<<<<<<<<< XILINX AXI VIP
+
+// ------------ REMOVED DUPLICATE DECLARATION
    // xil_axi_prot_t    prot                 = 0;
    // xil_axi_resp_t    resp;
-// ============
-   axi_pkg::prot_t prot = 0;
-   axi_pkg::resp_t resp;
-// >>>>>>>>>>>> PULP PLATFORM AXI VIP
-
+// ------------
 
 // <<<<<<<<<<<< XILINX AXI VIP
    // axi_mst_0 u_axi_mst_sg_0 (
@@ -1415,7 +1415,7 @@ reg qcom_rdy_i, qp2_rdy_i;
       // m1_axis to avg_buffer
       .m1_axis_tready   (axis_ro_avg_tready),
       .m1_axis_tvalid   (axis_ro_avg_tvalid),
-      .m1_axis_tdata    (axis_ro_avg_tdata),
+      .m1_axis_tdata    (axis_ro_avg_tdata)
    );
 
    // For Waveform Debug
@@ -1885,11 +1885,18 @@ initial begin
                   N = N+1;
                   
                   // Force time_abs
-                  $display("*** %t - Changing time_abs to get to %0u ***", $realtime(), (2**N)-100);
-                  force tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.TIME_ADDER.RESULT = (2**N)-100;
+
+// <<<<<<<<<<<<<<<<<<<<<<<< ATTEMPTING TO FORCE OUTPUT OF BYPASSED BLOCK
+                  // $display("*** %t - Changing time_abs to get to %0u ***", $realtime(), (2**N)-100);
+                  // force tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.TIME_ADDER.RESULT = (2**N)-100;
+                  // #100ns;
+                  // release tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.TIME_ADDER.RESULT;
+// ========================
+                  force tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.time_abs = (2**N)-100;
                   #100ns;
-                  release tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.TIME_ADDER.RESULT;
-         
+                  release tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.time_abs;
+// >>>>>>>>>>>>>>>>>>>>>>>> FORCING THE SIGNAL THAT THE BYPASSED BLOCK DIRECTLY
+
                   $display("*** Waiting for trigger ***");
                   wait (tb_qick.AXIS_QPROC.trig_0_o);
 
