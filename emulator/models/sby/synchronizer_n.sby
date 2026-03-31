@@ -6,8 +6,8 @@ depth 20
 smtbmc boolector
 
 [files]
-synchronizer_n.vhd
-synchronizer_n_sv.sv
+../../../firmware/ip/axis_signal_gen_v6/src/synchronizer_n.vhd
+../../../firmware/ip/axis_signal_gen_v6/src/verilog/synchronizer_n_sv.sv
 synchronizer_n_sva.sv
 
 [script]

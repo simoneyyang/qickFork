@@ -1,4 +1,8 @@
 module readout_top 
+	# 
+	(
+		parameter EMULATOR = 0
+	)
 	(
 		// Reset and clock.
     	aresetn			,
@@ -126,31 +130,61 @@ down_conversion_fir
 		);
 
 // Fifo for queuing waveforms.
-fifo
-	#(
-		// Data width.
-		.B	(88),
-		
-		// Fifo depth.
-		.N	(8)
-	)
-	fifo_i
-	( 
-		.rstn	(aresetn	),
-		.clk 	(aclk		),
-		
-		// Write I/F.
-		.wr_en 	(fifo_wr_en	),
-		.din    (fifo_din	),
-		
-		// Read I/F.
-		.rd_en 	(fifo_rd_en	),
-		.dout  	(fifo_dout	),
-		
-		// Flags.
-		.full   (fifo_full	),
-		.empty  (fifo_empty	)
-	);
+generate 
+	if (!EMULATOR) begin : gen_fifo_synth
+		fifo
+			#(
+				// Data width.
+				.B	(88),
+				
+				// Fifo depth.
+				.N	(8)
+			)
+			fifo_i
+			( 
+				.rstn	(aresetn	),
+				.clk 	(aclk		),
+				
+				// Write I/F.
+				.wr_en 	(fifo_wr_en	),
+				.din    (fifo_din	),
+				
+				// Read I/F.
+				.rd_en 	(fifo_rd_en	),
+				.dout  	(fifo_dout	),
+				
+				// Flags.
+				.full   (fifo_full	),
+				.empty  (fifo_empty	)
+			);
+	end else begin : gen_fifo_emu
+		fifo_sv 
+			#(
+				// Data width
+				.B	(88),
+
+				// Fifo depth
+				.N 	(8)
+			)
+			fifo_emu_i
+			(
+				.rstn	(aresetn),
+				.clk 	(aclk),
+
+				// Write I/F.
+				.wr_en 	(fifo_wr_en	),
+				.din    (fifo_din	),
+				
+				// Read I/F.
+				.rd_en 	(fifo_rd_en	),
+				.dout  	(fifo_dout	),
+				
+				// Flags.
+				.full   (fifo_full	),
+				.empty  (fifo_empty	)
+			);
+	end
+endgenerate
 
 // Fifo connections.
 //assign fifo_wr_en	= we & ~we_r;

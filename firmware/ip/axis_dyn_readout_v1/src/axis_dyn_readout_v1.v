@@ -69,8 +69,15 @@ wire            fifo_full   ;
 assign fifo_wr_en   = s0_axis_tvalid;
 assign fifo_din     = s0_axis_tdata;
 
+parameter EMULATOR = 0;
+
 // Readout Top.
-readout_top readout_top_i
+readout_top
+	#
+	(
+		.EMULATOR(0)
+	)
+	readout_top_i
 	(
 		// Reset and clock (s0_axis, s1_axis, m0_axis, m1_axis).
     	.aresetn		(aresetn		),

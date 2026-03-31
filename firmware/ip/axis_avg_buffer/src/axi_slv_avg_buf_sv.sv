@@ -1,57 +1,83 @@
-// axi_slv_sg_v6.sv
-// 
-
-module axi_slv_sg_v6_sv #(parameter DATA_WIDTH = 32, parameter ADDR_WIDTH = 6)(
-    input logic aclk,
-    input logic aresetn,
+module axi_slv_avg_buf_sv #(
+    parameter int DATA_WIDTH = 32,
+    parameter int ADDR_WIDTH = 6
+)(
+    input  logic                         aclk,
+    input  logic                         aresetn,
 
     // Write Address Channel
-    input logic [ADDR_WIDTH-1:0] awaddr,
-    input logic [2:0] awprot,
-    input logic awvalid,
-    output logic awready,
+    input  logic [ADDR_WIDTH-1:0]        awaddr,
+    input  logic [2:0]                   awprot,
+    input  logic                         awvalid,
+    output logic                         awready,
 
     // Write Data Channel
-    input logic [DATA_WIDTH-1:0] wdata,
-    input logic [(DATA_WIDTH/8)-1:0] wstrb,
-    input logic wvalid,
-    output logic wready,
+    input  logic [DATA_WIDTH-1:0]        wdata,
+    input  logic [(DATA_WIDTH/8)-1:0]    wstrb,
+    input  logic                         wvalid,
+    output logic                         wready,
 
     // Write Response Channel
-    output logic [1:0] bresp,
-    output logic bvalid,
-    input logic bready,
+    output logic [1:0]                   bresp,
+    output logic                         bvalid,
+    input  logic                         bready,
 
     // Read Address Channel
-    input [ADDR_WIDTH-1:0] araddr,
-    input [2:0] arprot,
-    input arvalid,
-    output arready,
+    input  logic [ADDR_WIDTH-1:0]        araddr,
+    input  logic [2:0]                   arprot,
+    input  logic                         arvalid,
+    output logic                         arready,
 
     // Read Data Channel
-    output logic [DATA_WIDTH-1:0] rdata,
-    output logic [1:0] rresp,
-    output logic rvalid,
-    input logic rready,
+    output logic [DATA_WIDTH-1:0]        rdata,
+    output logic [1:0]                   rresp,
+    output logic                         rvalid,
+    input  logic                         rready,
 
-    // Registers
-    output logic [31:0] START_ADDR_REG,
-    output logic WE_REG
+    // User Registers
+    output logic                         AVG_START_REG,
+    output logic [31:0]                  AVG_ADDR_REG,
+    output logic [31:0]                  AVG_LEN_REG,
+    output logic                         AVG_PHOTON_MODE_REG,
+    output logic [31:0]                  AVG_H_THRSH_REG,
+    output logic [31:0]                  AVG_L_THRSH_REG,
+    output logic                         AVG_DR_START_REG,
+    output logic [31:0]                  AVG_DR_ADDR_REG,
+    output logic [31:0]                  AVG_DR_LEN_REG,
+    output logic                         BUF_START_REG,
+    output logic [31:0]                  BUF_ADDR_REG,
+    output logic [31:0]                  BUF_LEN_REG,
+    output logic                         BUF_DR_START_REG,
+    output logic [31:0]                  BUF_DR_ADDR_REG,
+    output logic [31:0]                  BUF_DR_LEN_REG
 );
 
-    logic [ADDR_WIDTH-1:0] axi_awaddr;
-    logic axi_awready;
-    logic axi_wready;
-    logic [1:0] axi_bresp;
-    logic axi_bvalid;
-    logic [ADDR_WIDTH-1:0] axi_araddr;
-    logic axi_arready;
-    logic [DATA_WIDTH-1:0] axi_rdata;
-    logic [1:0] axi_rresp;
-    logic axi_rvalid;
+    // Local parameters
+    localparam int ADDR_LSB = (DATA_WIDTH/32) + 1;   // =2 for 32-bit
+    localparam int OPT_MEM_ADDR_BITS = 3;             // 16 regs
 
-    localparam int ADDR_LSB = (DATA_WIDTH/32)+1;
-    localparam int OPT_MEM_ADDR_BITS = 3;
+    // Internal AXI signals
+    logic [ADDR_WIDTH-1:0] axi_awaddr;
+    logic                  axi_awready;
+    logic                  axi_wready;
+    logic [1:0]            axi_bresp;
+    logic                  axi_bvalid;
+    logic [ADDR_WIDTH-1:0] axi_araddr;
+    logic                  axi_arready;
+    logic [DATA_WIDTH-1:0] axi_rdata;
+    logic [1:0]            axi_rresp;
+    logic                  axi_rvalid;
+
+    logic                  aw_en;
+
+    assign awready = axi_awready;
+    assign wready  = axi_wready;
+    assign bresp   = axi_bresp;
+    assign bvalid  = axi_bvalid;
+    assign arready = axi_arready;
+    assign rdata   = axi_rdata;
+    assign rresp   = axi_rresp;
+    assign rvalid  = axi_rvalid;
 
     // Number of Slave Registers 16
     logic [DATA_WIDTH-1:0] slv_reg0;
@@ -70,108 +96,77 @@ module axi_slv_sg_v6_sv #(parameter DATA_WIDTH = 32, parameter ADDR_WIDTH = 6)(
     logic [DATA_WIDTH-1:0] slv_reg13;
     logic [DATA_WIDTH-1:0] slv_reg14;
     logic [DATA_WIDTH-1:0] slv_reg15;
-    logic slv_reg_rden;
-    logic slv_reg_wren;
+
+    // Slave registers (16 x DATA_WIDTH)
+    logic [DATA_WIDTH-1:0] slv_reg [0:15];
+    logic                  slv_reg_wren;
+    logic                  slv_reg_rden;
     logic [DATA_WIDTH-1:0] reg_data_out;
-    int bte_index;
-    logic aw_en;
 
-    //I/O Connections assignments
-    assign awready = axi_awready;
-    assign wready = axi_wready;
-    assign bresp = axi_bresp;
-    assign bvalid = axi_bvalid;
-    assign arready = axi_arready;
-    assign rdata = axi_rdata;
-    assign rresp = axi_rresp;
-    assign rvalid = axi_rvalid;
-
-    always_ff@(posedge aclk) begin 
-        if (~aresetn) begin 
-            axi_awready <= 0;
-            aw_en <= 1;
-        end else begin 
-            if (axi_awready == 0 && awvalid == 1 && wvalid == 1 && aw_en == 1) begin 
-                axi_awready <= 1;
-                aw_en <= 0;
-            end else if (bready == 1 && axi_bvalid == 1) begin 
-                axi_awready <= 0;
-                aw_en <= 1;
-            end else 
-                axi_awready <= 0;
-        end 
-    end
-
-    // Implement axi_awaddr latching
-    always_ff@(posedge aclk) begin 
-        if (~aresetn) begin 
-            axi_awaddr <= 0;
-        end else begin 
-            if (axi_awready == 0 && awvalid == 1 && wvalid == 1 && aw_en == 1) begin
-                axi_awaddr <= awaddr;
+    // Write Address Ready
+    always_ff @(posedge aclk) begin
+        if (!aresetn) begin
+            axi_awready <= 1'b0;
+            aw_en       <= 1'b1;
+        end else begin
+            if (!axi_awready && awvalid && wvalid && aw_en) begin
+                axi_awready <= 1'b1;
+                aw_en       <= 1'b0;
+            end else if (bready && axi_bvalid) begin
+                aw_en       <= 1'b1;
+                axi_awready <= 1'b0;
+            end else begin
+                axi_awready <= 1'b0;
             end
         end
     end
 
-    // Implement axi_wready generation
-    always_ff@(posedge aclk) begin 
-        if (~aresetn) begin 
-            axi_wready <= 0;
-        end else begin 
-            if (axi_wready == 0 && wvalid == 1 && awvalid == 1 && aw_en) begin 
-                axi_wready <= 1;
-            end else begin 
-                axi_wready <= 0;
-            end
-        end
-        end
+    // Latch write address
+    always_ff @(posedge aclk) begin
+        if (!aresetn)
+            axi_awaddr <= '0;
+        else if (!axi_awready && awvalid && wvalid && aw_en)
+            axi_awaddr <= awaddr;
+    end
 
-    // Implement memory mapped register select and write logic generation
+    // Write Data Ready
+    always_ff @(posedge aclk) begin
+        if (!aresetn)
+            axi_wready <= 1'b0;
+        else if (!axi_wready && wvalid && awvalid && aw_en)
+            axi_wready <= 1'b1;
+        else
+            axi_wready <= 1'b0;
+    end
+
     assign slv_reg_wren = axi_wready && wvalid && axi_awready && awvalid;
 
-    always_ff@(posedge aclk) begin : decoding_regs_aclk
-        logic [OPT_MEM_ADDR_BITS:0] loc_addr;
-        if (~aresetn) begin 
-            slv_reg0 <= 0;
-            slv_reg1 <= 0;
-            slv_reg2 <= 0;
-            slv_reg3 <= 0;
-            slv_reg4 <= 0;
-            slv_reg5 <= 0;
-            slv_reg6 <= 0;
-            slv_reg7 <= 0;
-            slv_reg8 <= 0;
-            slv_reg9 <= 0;
-            slv_reg10 <= 0;
-            slv_reg11 <= 0;
-            slv_reg12 <= 0;
-            slv_reg13 <= 0;
-            slv_reg14 <= 0;
-            slv_reg15 <= 0;
-        end else begin 
-            /*
-            loc_addr <= axi_awaddr[(ADDR_LSB + OPT_MEM_ADDR_BITS):ADDR_LSB];
-
-            if (slv_reg_wren) begin 
+    // Register Write Logic
+    logic [OPT_MEM_ADDR_BITS:0] loc_addr;
+    assign loc_addr = axi_awaddr[(ADDR_LSB + OPT_MEM_ADDR_BITS):ADDR_LSB];
+    always_ff @(posedge aclk) begin
+        if (!aresetn) begin
+            slv_reg0  <= '0;
+            slv_reg1  <= '0;
+            slv_reg2  <= '0;
+            slv_reg3  <= '0;
+            slv_reg4  <= '0;
+            slv_reg5  <= '0;
+            slv_reg6  <= '0;
+            slv_reg7  <= '0;
+            slv_reg8  <= '0;
+            slv_reg9  <= '0;
+            slv_reg10 <= '0;
+            slv_reg11 <= '0;
+            slv_reg12 <= '0;
+            slv_reg13 <= '0;
+            slv_reg14 <= '0;
+            slv_reg15 <= '0;
+        end 
+        else if (slv_reg_wren) begin
+            if (slv_reg_wren) begin
                 case (loc_addr)
-            */
-            
-            // Replace or augment the code inside the decoding always_ff
-            logic [OPT_MEM_ADDR_BITS:0] write_addr;
-
-            // keep existing capture of axi_awaddr:
-            loc_addr <= axi_awaddr[(ADDR_LSB + OPT_MEM_ADDR_BITS):ADDR_LSB];
-
-            // compute write_addr using incoming awaddr if we're writing in this same cycle
-            if (slv_reg_wren) begin
-                write_addr = awaddr[(ADDR_LSB + OPT_MEM_ADDR_BITS) : ADDR_LSB];
-            end else begin
-                write_addr = loc_addr;
-            end
-
-            if (slv_reg_wren) begin
-                case (write_addr)
-                    'b0000: begin
+                    4'b0000: begin
                            for (int byte_index = 0; byte_index < (DATA_WIDTH/8); byte_index++) begin
                              if (wstrb[byte_index]) begin
                              slv_reg0[(byte_index*8) +: 8] <= wdata[(byte_index*8) +: 8];
@@ -321,93 +316,102 @@ module axi_slv_sg_v6_sv #(parameter DATA_WIDTH = 32, parameter ADDR_WIDTH = 6)(
         end
     end
 
-    // Implement write response logic generation
-    always_ff@(posedge aclk) begin 
-        if (~aresetn) begin 
-            axi_bvalid <= 0;
-            axi_bresp <= 0;
-        end else begin 
-            if (axi_awready == 1 && awvalid == 1 && axi_wready == 1 && wvalid == 1 && axi_bvalid == 0) begin 
-                axi_bvalid <= 1;
-                axi_bresp <= 0;
-            end else if (bready == 1 && axi_bvalid == 1) begin 
-                axi_bvalid <= 0;
+
+    // Write Response
+    always_ff @(posedge aclk) begin
+        if (!aresetn) begin
+            axi_bvalid <= 1'b0;
+            axi_bresp  <= 2'b00;
+        end else begin
+            if (axi_awready && awvalid && axi_wready && wvalid && !axi_bvalid) begin
+                axi_bvalid <= 1'b1;
+                axi_bresp  <= 2'b00; // OKAY
+            end else if (bready && axi_bvalid) begin
+                axi_bvalid <= 1'b0;
             end
         end
     end
 
-    // Implement axi_arready generation
-    always_ff@(posedge aclk) begin 
-        if (~aresetn) begin 
-            axi_arready <= 0;
-            axi_araddr <= 1;
-        end else begin 
-            if (axi_arready == 0 && arvalid == 1) begin 
-                axi_arready <= 1;
-                axi_araddr <= araddr;
-            end else 
-                axi_araddr <= 0;
+    // Read Address Channel
+    always_ff @(posedge aclk) begin
+        if (!aresetn) begin
+            axi_arready <= 1'b0;
+            axi_araddr  <= '1;
+        end else if (!axi_arready && arvalid) begin
+            axi_arready <= 1'b1;
+            axi_araddr  <= araddr;
+        end else begin
+            axi_arready <= 1'b0;
         end
     end
 
-    // Implement axi_arvalid generation
-    always_ff@(posedge aclk) begin 
-        if(~aresetn)  begin
-            axi_rvalid <= 0;
-            axi_rresp <= 0;
-        end else begin 
-            if (axi_arready == 1 && arvalid == 1 && axi_rvalid == 0) begin 
-                axi_rvalid <= 1;
-                axi_rresp <= 0;
-            end else if (axi_rvalid == 1 && rready == 1) 
-                axi_rvalid <= 0;
-        end
-    end
-
-    // Implement memory mapped register select and read logic generation
-    assign slv_reg_rden = axi_arready && arvalid && (~axi_rvalid);
-
-    always_comb begin : decoding_regs_no_aclk
-        logic [OPT_MEM_ADDR_BITS:ADDR_LSB] loc_addr;
-
-        case (loc_addr)
-            'b0000: reg_data_out = slv_reg0;
-            'b0001: reg_data_out = slv_reg1;
-            'b0010: reg_data_out = slv_reg2;
-            'b0011: reg_data_out = slv_reg3;
-            'b0100: reg_data_out = slv_reg4;
-            'b0101: reg_data_out = slv_reg5;
-            'b0110: reg_data_out = slv_reg6;
-            'b0111: reg_data_out = slv_reg7;
-            'b1000: reg_data_out = slv_reg8;
-            'b1001: reg_data_out = slv_reg9;
-            'b1010: reg_data_out = slv_reg10;
-            'b1011: reg_data_out = slv_reg11;
-            'b1100: reg_data_out = slv_reg12;
-            'b1101: reg_data_out = slv_reg13;
-            'b1110: reg_data_out = slv_reg14;
-            'b1111: reg_data_out = slv_reg15;
-            default:reg_data_out = 0;
-        endcase
-    end
-
-    // Output register or memory read data
-    always_ff@(posedge aclk) begin 
-        if (~aresetn) begin 
-            axi_rdata <= 0;
-        end else begin 
-            if (slv_reg_rden) begin 
-                axi_rdata <= reg_data_out;
+    // Read valid generation
+    always_ff @(posedge aclk) begin
+        if (!aresetn) begin
+            axi_rvalid <= 1'b0;
+            axi_rresp  <= 2'b00;
+        end else begin
+            if (axi_arready && arvalid && !axi_rvalid) begin
+                axi_rvalid <= 1'b1;
+                axi_rresp  <= 2'b00;
+            end else if (axi_rvalid && rready) begin
+                axi_rvalid <= 1'b0;
             end
         end
     end
 
-    //  Register Map.
-    // 0 : START_ADDR_REG   : 32-bit. Start address to write into memory.
-    // 1 : WE_REG        : 1-bit. Enable write into memory.
+    assign slv_reg_rden = axi_arready && arvalid && !axi_rvalid;
 
-    // Output registers
-    assign START_ADDR_REG = slv_reg0;
-    assign WE_REG = slv_reg1;
+    // Read mux
+    always_comb begin
+  logic [3:0] loc_addr;
+  loc_addr = axi_araddr[ADDR_LSB + OPT_MEM_ADDR_BITS : ADDR_LSB];
+
+  case (loc_addr)
+    4'h0: reg_data_out = slv_reg0;
+    4'h1: reg_data_out = slv_reg1;
+    4'h2: reg_data_out = slv_reg2;
+    4'h3: reg_data_out = slv_reg3;
+    4'h4: reg_data_out = slv_reg4;
+    4'h5: reg_data_out = slv_reg5;
+    4'h6: reg_data_out = slv_reg6;
+    4'h7: reg_data_out = slv_reg7;
+    4'h8: reg_data_out = slv_reg8;
+    4'h9: reg_data_out = slv_reg9;
+    4'hA: reg_data_out = slv_reg10;
+    4'hB: reg_data_out = slv_reg11;
+    4'hC: reg_data_out = slv_reg12;
+    4'hD: reg_data_out = slv_reg13;
+    4'hE: reg_data_out = slv_reg14;
+    4'hF: reg_data_out = slv_reg15;
+    default: reg_data_out = '0;
+  endcase
+end
+
+
+    // Output read data
+    always_ff @(posedge aclk) begin
+        if (!aresetn)
+            axi_rdata <= '0;
+        else if (slv_reg_rden)
+            axi_rdata <= reg_data_out;
+    end
+
+    // Register Map Assignments
+    assign AVG_START_REG        = slv_reg0[0];
+    assign AVG_ADDR_REG         = slv_reg1;
+    assign AVG_LEN_REG          = slv_reg2;
+    assign AVG_DR_START_REG     = slv_reg3[0];
+    assign AVG_DR_ADDR_REG      = slv_reg4;
+    assign AVG_DR_LEN_REG       = slv_reg5;
+    assign BUF_START_REG        = slv_reg6[0];
+    assign BUF_ADDR_REG         = slv_reg7;
+    assign BUF_LEN_REG          = slv_reg8;
+    assign BUF_DR_START_REG     = slv_reg9[0];
+    assign BUF_DR_ADDR_REG      = slv_reg10;
+    assign BUF_DR_LEN_REG       = slv_reg11;
+    assign AVG_PHOTON_MODE_REG  = slv_reg12[0];
+    assign AVG_H_THRSH_REG      = slv_reg13;
+    assign AVG_L_THRSH_REG      = slv_reg14;
 
 endmodule

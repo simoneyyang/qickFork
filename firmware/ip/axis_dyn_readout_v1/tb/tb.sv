@@ -44,12 +44,22 @@ reg	[31:0]		dout_r_f [N]		;
 // Output data.
 wire[15:0]		dout_real		;
 wire[15:0]		dout_imag		;
+wire[15:0]		dout_real_emu		;
+wire[15:0]		dout_imag_emu		;
 
 // Fast clock for parallel/serial conversion.
 reg				aclk_f			;
 reg	[15:0]		din_r_f			;
 reg	[15:0]		dout_real_f		;
 reg	[15:0]		dout_imag_f		;
+
+// logic for emulator filter
+logic signed [31:0] m_tdata_sv;
+logic 				m_tvalid_sv;
+// Output full-speed data.
+reg	[31:0]		dout_r_f_emu [N];
+reg	[15:0]		dout_real_f_emu		;
+reg	[15:0]		dout_imag_f_emu		;
 
 // Test bench control.
 reg tb_wave	= 0;
@@ -60,11 +70,14 @@ genvar ii;
 for (ii = 0; ii < N; ii = ii + 1) begin : GEN_debug
 	assign s1_axis_tdata [ii*16 +: 16] 	= din_r[ii];
 	assign dout_r_f[ii] 	= m0_axis_tdata[ii*32 +: 32];
+	assign dout_r_f_emu[ii] = m0_axis_tdata[ii*32 +: 32];
 end
 endgenerate
 
 assign dout_real = m1_axis_tdata[0 	+: 16];
 assign dout_imag = m1_axis_tdata[16	+: 16];
+assign dout_real_emu = m_tdata_sv[0 	+: 16];
+assign dout_imag_emu = m_tdata_sv[16	+: 16];
 
 assign s0_axis_tdata = {zero_r,phrst_r,mode_r,outsel_r,nsamp_r,phase_r,freq_r};
 
@@ -96,6 +109,19 @@ axis_dyn_readout_v1
 		.m1_axis_tvalid	,
 		.m1_axis_tdata
 
+	);
+
+// comparing against emulator fir filter
+fir
+	fir_emu
+	(
+		.clk 		(aclk),
+		.nrst 		(1'b1),
+		.s_tvalid 	(s1_axis_tvalid),
+		.s_tready 	(),
+		.s_tdata  	(m0_axis_tdata),
+		.m_tvalid	(m_tvalid_sv),
+		.m_tdata	(m_tdata_sv)
 	);
 
 initial begin
@@ -230,6 +256,8 @@ initial begin
 			din_r_f		<= din_r[i];
 			dout_real_f		<= dout_r_f[i][0 +: 16];
 			dout_imag_f		<= dout_r_f[i][16 +: 16];
+			dout_real_f_emu		<= dout_r_f_emu[i][0 +: 16];
+			dout_imag_f_emu		<= dout_r_f_emu[i][16 +: 16];
 		end
 	end
 end
