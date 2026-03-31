@@ -24,8 +24,6 @@ module data_writer_sv #(
 
     localparam int NT_LOG2 = $clog2(NT);
 
-    // parameter EMULATOR = 1;
-
     // State machine states
     typedef enum logic [1:0] {INIT_ST, READ_START_ADDR_ST, WAIT_TVALID_ST, RW_TDATA_ST} statetype;
     statetype state;
@@ -35,15 +33,6 @@ module data_writer_sv #(
 
     // WE_REG_resync
     logic WE_REG_resync;
-
-    // sychronizer
-    // generate
-    //     if (!EMULATOR) begin : GEN_sync_n_vhd
-    //         synchronizer_n #(.N(2)) sync0(.clk(clk), .rstn(rstn), .data_in(WE_REG), .data_out(WE_REG_resync));
-    //     end else begin : GEN_sync_n_sv
-    //         synchronizer_n_sv #(.N(2)) sync_i(.clk(clk), .rstn(rstn), .data_in(WE_REG), .data_out(WE_REG_resync));
-    //     end
-    // endgenerate
     
     synchronizer_n_sv #(.N(2)) sync_i(.clk(clk), .rstn(rstn), .data_in(WE_REG), .data_out(WE_REG_resync));
 

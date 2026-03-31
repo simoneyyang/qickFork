@@ -69,7 +69,7 @@ wire            fifo_full   ;
 assign fifo_wr_en   = s0_axis_tvalid;
 assign fifo_din     = s0_axis_tdata;
 
-parameter EMULATOR = 1;
+parameter EMULATOR = 0;
 
 // Readout Top.
 readout_top

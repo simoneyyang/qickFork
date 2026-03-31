@@ -31,7 +31,7 @@ module down_conversion_fir (
 localparam [15:0] N_DDS = 8;
 
 // Emulator parameter
-parameter EMULATOR = 1;
+parameter EMULATOR = 0;
 
 /*********/
 /* Ports */
