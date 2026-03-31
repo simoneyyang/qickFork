@@ -239,7 +239,7 @@ module axi_slv_qproc_equiv #(
         .reg_data_out(sv_reg_data_out)
     );
 
-    // Asummptions
+    // Assumptions
 
     reg past_valid;
     initial past_valid = 1'b0;
