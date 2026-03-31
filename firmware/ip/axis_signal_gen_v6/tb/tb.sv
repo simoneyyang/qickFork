@@ -269,7 +269,7 @@ initial begin
    wait (tb_load_mem);
 
     // File must be in the same directory from where the simulation is run
-   fd = $fopen("/home/hrlclinic/Documents/troy_axi_sig_gen/qick/firmware/ip/axis_signal_gen_v6/src/tb/gauss.txt","r");
+   fd = $fopen("gauss.txt","r");
    if (fd == 0) begin
     $display("shit");
    end else begin
