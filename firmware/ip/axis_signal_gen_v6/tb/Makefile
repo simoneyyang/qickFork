@@ -28,7 +28,7 @@ sim:
 	./$(OBJ_DIR)/V$(TOP_MODULE)
 
 verilate: 
-	~/Downloads/oss-cad-suite-linux-x64-20260324/oss-cad-suite/bin/verilator $(VERILATOR_FLAGS) --top-module $(TOP_MODULE) $(VERILOG_SOURCES)
+	verilator $(VERILATOR_FLAGS) --top-module $(TOP_MODULE) $(VERILOG_SOURCES)
 
 clean:
 	rm -rf $(OBJ_DIR)
