@@ -99,7 +99,7 @@ generate
 				.aclk				(clk				),
 				.s_axis_data_tvalid	(1'b1				),
 				.s_axis_data_tready	(					),
-				.s_axis_data_tdata	(m0_axis_tdata_o	),
+				.s_axis_data_tdata	(m0_axis_tdata_o	), 
 				.m_axis_data_tvalid	(m1_axis_tvalid_o	),
 				.m_axis_data_tdata	(m1_axis_tdata_o	)
 			);

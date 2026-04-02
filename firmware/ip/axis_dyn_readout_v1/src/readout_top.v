@@ -1,8 +1,4 @@
 module readout_top 
-	# 
-	(
-		parameter EMULATOR = 0
-	)
 	(
 		// Reset and clock.
     	aresetn			,
@@ -43,6 +39,9 @@ module readout_top
 /**************/
 // Number of parallel dds blocks.
 localparam [15:0] N_DDS = 8;
+
+// Emulator flag
+parameter EMULATOR = 0;
 
 /*********/
 /* Ports */
