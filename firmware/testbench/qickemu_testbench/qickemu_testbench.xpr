@@ -4,10 +4,10 @@
 <!-- Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.                   -->
 <!-- Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.   -->
 
-<Project Product="Vivado" Version="7" Minor="63" Path="/home/hrl/troy/qick/firmware/testbench/qick_testbench/qick_testbench.xpr">
+<Project Product="Vivado" Version="7" Minor="63" Path="/home/dmartin2/hrl-labs-clinic/qick_fork_troykaufman/firmware/testbench/qickemu_testbench/qickemu_testbench.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
-    <Option Name="Id" Val="ee4101ae9cb9409f8084103e6f2383a5"/>
+    <Option Name="Id" Val="3c44ca5e328e4219b7a723c6ac50e334"/>
     <Option Name="Part" Val="xczu49dr-ffvf1760-2-e"/>
     <Option Name="CompiledLibDir" Val="$PCACHEDIR/compile_simlib"/>
     <Option Name="CompiledLibDirXSim" Val=""/>
@@ -61,7 +61,7 @@
     <Option Name="UseIPStaticLibs" Val="0"/>
     <Option Name="EnableBDX" Val="FALSE"/>
     <Option Name="DSABoardId" Val="zcu216"/>
-    <Option Name="WTXSimLaunchSim" Val="1184"/>
+    <Option Name="WTXSimLaunchSim" Val="1187"/>
     <Option Name="WTModelSimLaunchSim" Val="0"/>
     <Option Name="WTQuestaLaunchSim" Val="0"/>
     <Option Name="WTIesLaunchSim" Val="0"/>
@@ -640,6 +640,14 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
+      <File Path="$PPRDIR/../../ip/axis_avg_buffer/src/axi_slv_avg_buf_sv.sv">
+        <FileInfo>
+          <Attr Name="Library" Val="lib_axis_avg_buffer"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopAutoSet" Val="TRUE"/>
@@ -653,19 +661,19 @@
     </FileSet>
     <FileSet Name="sim_1" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_1" RelGenDir="$PGENDIR/sim_1">
       <Filter Type="Srcs"/>
-      <File Path="$PPRDIR/src/tb/axi_mst_0/axi_mst_0.xci">
+      <File Path="$PPRDIR/../qick_testbench/src/tb/axi_mst_0/axi_mst_0.xci">
         <FileInfo>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/src/tb/tb_qick.sv">
+      <File Path="$PPRDIR/../qick_testbench/src/tb/tb_qick.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/src/tb/tb_qick_behav.wcfg">
+      <File Path="$PPRDIR/../qick_testbench/src/tb/tb_qick_behav.wcfg">
         <FileInfo>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
@@ -779,9 +787,9 @@
         <Option Name="PamSignalDriverFile" Val="xil_bypass_driver"/>
         <Option Name="PamPseudoTop" Val="pseudo_tb"/>
         <Option Name="SrcSet" Val="sources_1"/>
-        <Option Name="XSimWcfgFile" Val="$PPRDIR/src/tb/tb_qick_behav.wcfg"/>
+        <Option Name="XSimWcfgFile" Val="$PPRDIR/../qick_testbench/src/tb/tb_qick_behav.wcfg"/>
         <Option Name="xsim.simulate.log_all_signals" Val="true"/>
-        <Generic Name="EMULATOR" Val="0"/>
+        <Generic Name="EMULATOR" Val="1"/>
       </Config>
     </FileSet>
     <FileSet Name="utils_1" Type="Utils" RelSrcDir="$PSRCDIR/utils_1" RelGenDir="$PGENDIR/utils_1">

@@ -742,8 +742,8 @@ reg qcom_rdy_i, qp2_rdy_i;
       .N_DDS               (N_DDS            ),
       .GEN_DDS             ("TRUE"           ),
       // .GEN_DDS             ("FALSE"           ),
-      .ENVELOPE_TYPE       ("COMPLEX"        )
-//      .EMULATOR            (EMULATOR        )
+      .ENVELOPE_TYPE       ("COMPLEX"        ),
+      .EMULATOR            (EMULATOR        )
    )
    u_axis_signal_gen_v6_0 ( 
       // AXI Slave I/F for configuration.
@@ -1290,8 +1290,8 @@ reg qcom_rdy_i, qp2_rdy_i;
    axis_avg_buffer #(
       .N_AVG                  (13               ),
       .N_BUF                  (12               ),
-      .B                      (16               )
-//      .EMULATOR               (EMULATOR         )
+      .B                      (16               ),
+      .EMULATOR               (EMULATOR         )
    )
    u_axis_avg_buffer_0 ( 
       // AXI Slave I/F for configuration.
