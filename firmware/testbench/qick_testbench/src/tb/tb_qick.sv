@@ -1732,9 +1732,15 @@ task tproc_load_mem(string test_name);
    $display("### Task tproc_load_mem() start ###");
    $display("Loading Test: %s", test_name);
 
-   pmem_file = {"../../../../src/tb/",test_name,"/pmem.mem"};
-   wmem_file = {"../../../../src/tb/",test_name,"/wmem.mem"};
-   dmem_file = {"../../../../src/tb/",test_name,"/dmem.mem"};
+   if (!EMULATOR) begin 
+      pmem_file = {"../../../../src/tb/",test_name,"/pmem.mem"};
+      wmem_file = {"../../../../src/tb/",test_name,"/wmem.mem"};
+      dmem_file = {"../../../../src/tb/",test_name,"/dmem.mem"};
+   end else begin 
+      pmem_file = {"../../../../../qick_testbench/src/tb/",test_name,"/pmem.mem"};
+      wmem_file = {"../../../../../qick_testbench/src/tb/",test_name,"/wmem.mem"};
+      dmem_file = {"../../../../../qick_testbench/src/tb/",test_name,"/dmem.mem"};
+   end
 
    $readmemh(pmem_file, AXIS_QPROC.QPROC.CORE_0.CORE_MEM.P_MEM.RAM);
    $readmemh(wmem_file, AXIS_QPROC.QPROC.CORE_0.CORE_MEM.W_MEM.RAM);
@@ -1776,7 +1782,11 @@ task sg_load_mem(string test_name) /*, input logic tb_load_mem, output logic tb_
    tb_load_mem    = 1;
 
    // File must be relative to where the simulation is run from (i.e.: xxx.sim/sim_x/behav/xsim)
-   sg_file = {"../../../../src/tb/",test_name,"/sg_0.mem"};
+   if (!EMULATOR) begin 
+      sg_file = {"../../../../src/tb/",test_name,"/sg_0.mem"};
+   end else begin 
+      sg_file = {"../../../../../qick_testbench/src/tb/",test_name,"/sg_0.mem"};
+   end
    fd = $fopen(sg_file,"r");
 
    wait (sg_s0_axis_tready);
