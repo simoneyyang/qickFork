@@ -314,12 +314,11 @@ module axi_slv_qproc_equiv #(
             assert(vhdl_slv_reg15 === sv_slv_reg15);
             assert(vhdl_aw_en === sv_aw_en);
             assert(vhdl_slv_reg_wren === sv_slv_reg_wren);
-
-            assume(vhdl_slv_reg_rden === sv_slv_reg_rden);
-
-            // assert(vhdl_reg_data_out === sv_reg_data_out);
-
-
+            assert(vhdl_slv_reg_rden === sv_slv_reg_rden);
+            
+            if (vhdl_slv_reg_rden) begin
+                assert(vhdl_reg_data_out === sv_reg_data_out);
+            end
 
             // Outputs
             assert(vhdl_awready === sv_awready);
