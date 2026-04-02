@@ -4,7 +4,7 @@
 <!-- Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.                   -->
 <!-- Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.   -->
 
-<Project Product="Vivado" Version="7" Minor="63" Path="/home/hrl/troy/qick/firmware/testbench/qickemu_testbench/qickemu_testbench.xpr">
+<Project Product="Vivado" Version="7" Minor="63" Path="/home/dmartin2/hrl-labs-clinic/qick_fork_troykaufman/firmware/testbench/qickemu_testbench/qickemu_testbench.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="3c44ca5e328e4219b7a723c6ac50e334"/>
@@ -61,7 +61,7 @@
     <Option Name="UseIPStaticLibs" Val="0"/>
     <Option Name="EnableBDX" Val="FALSE"/>
     <Option Name="DSABoardId" Val="zcu216"/>
-    <Option Name="WTXSimLaunchSim" Val="1203"/>
+    <Option Name="WTXSimLaunchSim" Val="1205"/>
     <Option Name="WTModelSimLaunchSim" Val="0"/>
     <Option Name="WTQuestaLaunchSim" Val="0"/>
     <Option Name="WTIesLaunchSim" Val="0"/>
@@ -700,7 +700,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../qick_testbench/src/tb/tb_qick_behav.wcfg">
+      <File Path="$PPRDIR/tb_qick_behav.wcfg">
         <FileInfo>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
