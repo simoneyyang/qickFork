@@ -1035,8 +1035,10 @@ reg qcom_rdy_i, qp2_rdy_i;
    reg                    rf_signal_valid_dly;
    reg [8*16-1:0]         rf_signal_data_dly;
    always @(*) begin
-      rf_signal_valid_dly <= #(250ns) rf_signal_valid;
-      rf_signal_data_dly  <= #(250ns) rf_signal_data;
+      // rf_signal_valid_dly <= #(250ns) rf_signal_valid;
+      // rf_signal_data_dly  <= #(250ns) rf_signal_data;
+      rf_signal_valid_dly <= rf_signal_valid;
+      rf_signal_data_dly  <= rf_signal_data;
    end
 
 
