@@ -65,7 +65,8 @@ input		[87:0]			fifo_dout_i;
 // Down-conversion block (product with fast DDS).
 down_conversion 
 	#(
-		.N_DDS	(N_DDS)
+		.N_DDS	(N_DDS),
+		.EMULATOR(EMULATOR)
 	)
 	down_conversion_i
 	(

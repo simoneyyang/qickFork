@@ -33,6 +33,8 @@ VERILOG_SOURCES = \
     $(wildcard $(FIRMWARE_DIR)/ip/axis_dyn_readout_v1/src/*.sv) \
 	$(wildcard $(FIRMWARE_DIR)/ip/axis_dyn_readout_v1/src/verilog/*.v) \
     $(wildcard $(FIRMWARE_DIR)/ip/axis_dyn_readout_v1/src/verilog/*.sv) \
+	$(wildcard $(FIRMWARE_DIR)/ip/axis_dyn_readout_v1/src/fifo/verilog/*.v) \
+    $(wildcard $(FIRMWARE_DIR)/ip/axis_dyn_readout_v1/src/fifo/verilog/*.sv) \
     \
     $(wildcard $(FIRMWARE_DIR)/ip/qick_processor/src/*.v) \
     $(wildcard $(FIRMWARE_DIR)/ip/qick_processor/src/*.sv) \
@@ -58,7 +60,7 @@ VERILOG_SOURCES = \
     $(wildcard $(MODELS_DIR)/axis_signal_gen_v6/*.sv) \
     $(wildcard $(MODELS_DIR)/bram_dp/*.sv) \
     $(wildcard $(MODELS_DIR)/dac_adc/*.sv) \
-    $(wildcard $(MODELS_DIR)/dsp_macro/*.sv) \
+    $(wildcard $(MODELS_DIR)/dsp_macro/src/*.sv) \
     $(wildcard $(MODELS_DIR)/fifo/*.sv) \
     $(wildcard $(MODELS_DIR)/fir/*.sv) \
     $(wildcard $(MODELS_DIR)/sig_gen_dds/*.sv) \
@@ -98,6 +100,7 @@ wave:
 
 sim: 
 	cp -f $(MODELS_DIR)/sig_gen_dds/LUT_generator/*.hex .
+	cp -f $(MODELS_DIR)/fir/fir_coe.txt .
 #   TODO: we will likely have to copy other dependant input files here too...
 	./$(OBJ_DIR)/V$(TOP_MODULE)
 
@@ -109,6 +112,7 @@ clean:
 	rm -f trace.vcd
 	rm -f *.o
 	rm -f *.hex
+	rm -f fir_coe.txt
 
 help:
 	@echo "QICK axis_signal_gen_v6 Testbench Simulator"

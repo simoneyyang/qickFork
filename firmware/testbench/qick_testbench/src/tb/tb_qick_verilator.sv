@@ -108,7 +108,11 @@ string TEST_NAME = "test_basic_pulses";
 // string TEST_NAME = "test_issue361";
 // string TEST_NAME = "test_issue53";
 // string TEST_NAME = "test_randomized_benchmarking";
-// string TEST_NAME = "test_qubit_emulator";
+
+// ------------ NOT SUPPORTED WITH VERILATOR
+   // string TEST_NAME = "test_qubit_emulator";
+// ------------
+
 //----------------------------------------------------
 
 // Default Simulation Settings
@@ -145,6 +149,15 @@ axi_pkg::resp_t resp;
 // >>>>>>>>>>>> PULP PLATFORM AXI VIP
 
 reg[31:0]       data_wr     = 32'h12345678;
+
+// ++++++++++++ TELL VERILATOR TO LOG SIGNALS IN VCD FILE
+initial begin
+
+   $dumpfile("obj_dir/waveform.vcd");
+   $dumpvars(0, tb_verilator);
+
+end
+// ++++++++++++
 
 //////////////////////////////////////////////////////////////////////////
 //  CLK Generation
@@ -751,7 +764,10 @@ reg qcom_rdy_i, qp2_rdy_i;
 
    axis_cdcsync_v1 #(
       .N                         (1),     // Number of inputs/outputs.
-      .B                         (168)    // Number of data bits.
+      .B                         (168),   // Number of data bits.
+// ++++++++++++ ADD EMULATOR PARAMETER
+      .EMULATOR                  (1'b1)
+// ++++++++++++
    )
    u_axis_sgcdcsync_v1 (
       // S_AXIS for input data.
@@ -1146,52 +1162,53 @@ reg qcom_rdy_i, qp2_rdy_i;
 
 // >>>>>>>>>>>> PULP PLATFORM AXI VIP
 
+// ------------ NOT SUPPORTED WITH VERILATOR
+   // axis_kidsim_v3 #(
+   //    .L                      (L)   // Number of lanes.
+   // )
+   // u_axis_kidsim_v3 (
+   //    // AXI Slave I/F for configuration.
+   //    .s_axi_aclk             (s_ps_dma_aclk       ),
+   //    .s_axi_aresetn          (s_ps_dma_aresetn    ),
+   //    .s_axi_araddr           (s_axi_qemu_araddr   ),
+   //    .s_axi_arprot           (s_axi_qemu_arprot   ),
+   //    .s_axi_arready          (s_axi_qemu_arready  ),
+   //    .s_axi_arvalid          (s_axi_qemu_arvalid  ),
+   //    .s_axi_awaddr           (s_axi_qemu_awaddr   ),
+   //    .s_axi_awprot           (s_axi_qemu_awprot   ),
+   //    .s_axi_awready          (s_axi_qemu_awready  ),
+   //    .s_axi_awvalid          (s_axi_qemu_awvalid  ),
+   //    .s_axi_bready           (s_axi_qemu_bready   ),
+   //    .s_axi_bresp            (s_axi_qemu_bresp    ),
+   //    .s_axi_bvalid           (s_axi_qemu_bvalid   ),
+   //    .s_axi_rdata            (s_axi_qemu_rdata    ),
+   //    .s_axi_rready           (s_axi_qemu_rready   ),
+   //    .s_axi_rresp            (s_axi_qemu_rresp    ),
+   //    .s_axi_rvalid           (s_axi_qemu_rvalid   ),
+   //    .s_axi_wdata            (s_axi_qemu_wdata    ),
+   //    .s_axi_wready           (s_axi_qemu_wready   ),
+   //    .s_axi_wstrb            (s_axi_qemu_wstrb    ),
+   //    .s_axi_wvalid           (s_axi_qemu_wvalid   ),
 
-   axis_kidsim_v3 #(
-      .L                      (L)   // Number of lanes.
-   )
-   u_axis_kidsim_v3 (
-      // AXI Slave I/F for configuration.
-      .s_axi_aclk             (s_ps_dma_aclk       ),
-      .s_axi_aresetn          (s_ps_dma_aresetn    ),
-      .s_axi_araddr           (s_axi_qemu_araddr   ),
-      .s_axi_arprot           (s_axi_qemu_arprot   ),
-      .s_axi_arready          (s_axi_qemu_arready  ),
-      .s_axi_arvalid          (s_axi_qemu_arvalid  ),
-      .s_axi_awaddr           (s_axi_qemu_awaddr   ),
-      .s_axi_awprot           (s_axi_qemu_awprot   ),
-      .s_axi_awready          (s_axi_qemu_awready  ),
-      .s_axi_awvalid          (s_axi_qemu_awvalid  ),
-      .s_axi_bready           (s_axi_qemu_bready   ),
-      .s_axi_bresp            (s_axi_qemu_bresp    ),
-      .s_axi_bvalid           (s_axi_qemu_bvalid   ),
-      .s_axi_rdata            (s_axi_qemu_rdata    ),
-      .s_axi_rready           (s_axi_qemu_rready   ),
-      .s_axi_rresp            (s_axi_qemu_rresp    ),
-      .s_axi_rvalid           (s_axi_qemu_rvalid   ),
-      .s_axi_wdata            (s_axi_qemu_wdata    ),
-      .s_axi_wready           (s_axi_qemu_wready   ),
-      .s_axi_wstrb            (s_axi_qemu_wstrb    ),
-      .s_axi_wvalid           (s_axi_qemu_wvalid   ),
+   //    // Modulation trigger.
+   //    .trigger                (trigger_0           ),
 
-      // Modulation trigger.
-      .trigger                (trigger_0           ),
+   //    // Reset and clock for axis_*.
+   //    .aresetn                (s_ps_dma_aresetn    ),
+   //    .aclk                   (adc_fs             ),
 
-      // Reset and clock for axis_*.
-      .aresetn                (s_ps_dma_aresetn    ),
-      .aclk                   (adc_fs             ),
+   //    // s_axis_* for input.
+   //    .s_axis_tvalid          (1'b1),
+   //    // .s_axis_tdata           ({adc_data_imag,adc_data_real}),   // width: 32*L, should be I/Q from input ADC
+   //    .s_axis_tdata           ({16'd0,adc_data}),   // width: 32*L, should be I/Q from input ADC
+   //    .s_axis_tlast           (1'b1),
 
-      // s_axis_* for input.
-      .s_axis_tvalid          (1'b1),
-      // .s_axis_tdata           ({adc_data_imag,adc_data_real}),   // width: 32*L, should be I/Q from input ADC
-      .s_axis_tdata           ({16'd0,adc_data}),   // width: 32*L, should be I/Q from input ADC
-      .s_axis_tlast           (1'b1),
-
-      // m_axis_* for output.
-      .m_axis_tvalid          (axis_qemu_ro_tvalid ),
-      .m_axis_tdata           (axis_qemu_ro_tdata  ),   // width: 32*L, should be I/Q to output DAC
-      .m_axis_tlast           ()
-   );
+   //    // m_axis_* for output.
+   //    .m_axis_tvalid          (axis_qemu_ro_tvalid ),
+   //    .m_axis_tdata           (axis_qemu_ro_tdata  ),   // width: 32*L, should be I/Q to output DAC
+   //    .m_axis_tlast           ()
+   // );
+// ------------
 
 
    localparam N_DDS_RO = 8;
@@ -1242,7 +1259,10 @@ reg qcom_rdy_i, qp2_rdy_i;
 
    axis_cdcsync_v1 #(
       .N                         (1),     // Number of inputs/outputs.
-      .B                         (168)    // Number of data bits.
+      .B                         (168),   // Number of data bits.
+// ++++++++++++ ADD EMULATOR PARAMETER
+      .EMULATOR                  (1'b1)
+// ++++++++++++
    )
    u_axis_cdcsync_v1 (
       // S_AXIS for input data.
@@ -1926,26 +1946,27 @@ initial begin
       end
    end
 
+// ------------ QUBIT EMULATOR NOT SUPPORTED WITH VERILATOR
+   // if (TEST_NAME == "test_qubit_emulator") begin
+   //    $display("*** %t - Start test_qubit_emulator Test ***", $realtime());
+   //    // TEST_OUT_CONNECTION  = "TEST_OUT_QEMU";
+   //    TEST_RUN_TIME        = 50us;
+   //    TEST_READ_TIME       = 10us;
+   //    REPEAT_EXEC          = 1;
 
-   if (TEST_NAME == "test_qubit_emulator") begin
-      $display("*** %t - Start test_qubit_emulator Test ***", $realtime());
-      // TEST_OUT_CONNECTION  = "TEST_OUT_QEMU";
-      TEST_RUN_TIME        = 50us;
-      TEST_READ_TIME       = 10us;
-      REPEAT_EXEC          = 1;
+   //    ro_length            = 500;
+   //    ro_decimated_length  = 500;
+   //    ro_average_length    = 21;
 
-      ro_length            = 500;
-      ro_decimated_length  = 500;
-      ro_average_length    = 21;
+   //    wait (tb_qick.AXIS_QPROC.t_resetn == 1'b1);
+   //    #100ns;
+   //    qubit_emulator_config();
+   //    #100ns;
+   //    // Configure Readout
 
-      wait (tb_qick.AXIS_QPROC.t_resetn == 1'b1);
-      #100ns;
-      qubit_emulator_config();
-      #100ns;
-      // Configure Readout
-
-      $display("*** %t - End of test_qubit_emulator Test ***", $realtime());
-   end
+   //    $display("*** %t - End of test_qubit_emulator Test ***", $realtime());
+   // end
+// ------------
 
 
    if (TEST_NAME == "test_randomized_benchmarking") begin
@@ -2037,9 +2058,15 @@ task tproc_load_mem(string test_name);
    $display("### Task tproc_load_mem() start ###");
    $display("Loading Test: %s", test_name);
 
-   pmem_file = {"../../../../src/tb/",test_name,"/pmem.mem"};
-   wmem_file = {"../../../../src/tb/",test_name,"/wmem.mem"};
-   dmem_file = {"../../../../src/tb/",test_name,"/dmem.mem"};
+// <<<<<<<<<<<< old file paths
+   // pmem_file = {"../../../../src/tb/",test_name,"/pmem.mem"};
+   // wmem_file = {"../../../../src/tb/",test_name,"/wmem.mem"};
+   // dmem_file = {"../../../../src/tb/",test_name,"/dmem.mem"};
+// ============
+   pmem_file = {"../firmware/testbench/qick_testbench/src/tb/",test_name,"/pmem.mem"};
+   wmem_file = {"../firmware/testbench/qick_testbench/src/tb/",test_name,"/wmem.mem"};
+   dmem_file = {"../firmware/testbench/qick_testbench/src/tb/",test_name,"/dmem.mem"};
+// >>>>>>>>>>>> new file paths
 
    $readmemh(pmem_file, AXIS_QPROC.QPROC.CORE_0.CORE_MEM.P_MEM.RAM);
    $readmemh(wmem_file, AXIS_QPROC.QPROC.CORE_0.CORE_MEM.W_MEM.RAM);
