@@ -154,7 +154,7 @@ reg[31:0]       data_wr     = 32'h12345678;
 initial begin
 
    $dumpfile("obj_dir/waveform.vcd");
-   $dumpvars(0, tb_verilator);
+   $dumpvars(0, tb_qick);
 
 end
 // ++++++++++++
@@ -1736,7 +1736,7 @@ initial begin
   
    // Load tProc Memories with Program
    tproc_load_mem(TEST_NAME);
-
+   $display("DEBUG POINT 1 : EXITED TPROC_LOAD_MEM TASK");
 
    // INITIAL VALUES
 
@@ -2072,7 +2072,7 @@ task tproc_load_mem(string test_name);
    $readmemh(wmem_file, AXIS_QPROC.QPROC.CORE_0.CORE_MEM.W_MEM.RAM);
    $readmemh(dmem_file, AXIS_QPROC.QPROC.CORE_0.CORE_MEM.D_MEM.RAM);
 
-   $display("### Task sg_load_mem() end ###");
+   $display("### Task tproc_load_mem() end ###");
 
 endtask
 
