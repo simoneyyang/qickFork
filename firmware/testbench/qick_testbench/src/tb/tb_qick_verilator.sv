@@ -1034,13 +1034,16 @@ reg qcom_rdy_i, qp2_rdy_i;
    // NOTE: THESE MUST BE REG TO WORK!!!
    reg                    rf_signal_valid_dly;
    reg [8*16-1:0]         rf_signal_data_dly;
-   always @(*) begin
-      // rf_signal_valid_dly <= #(250ns) rf_signal_valid;
-      // rf_signal_data_dly  <= #(250ns) rf_signal_data;
-      rf_signal_valid_dly <= rf_signal_valid;
-      rf_signal_data_dly  <= rf_signal_data;
-   end
 
+// <<<<<<<<<<<< VERILATOR INCOMPATIBLE DELAY 
+   // always @(*) begin
+   //    rf_signal_valid_dly <= #250ns rf_signal_valid;
+   //    rf_signal_data_dly  <= #250ns rf_signal_data;
+   // end
+// ============
+   assign #250ns rf_signal_valid_dly = rf_signal_valid;
+   assign #250ns rf_signal_data_dly  = rf_signal_data;
+// >>>>>>>>>>>> VERILATOR COMPATIBLE CONTINUOUS DELAY
 
    //--------------------------------------
    // WIP: Qubit Emulator
