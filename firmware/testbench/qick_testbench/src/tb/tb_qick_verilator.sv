@@ -1741,7 +1741,6 @@ initial begin
   
    // Load tProc Memories with Program
    tproc_load_mem(TEST_NAME);
-   $display("DEBUG POINT 1 : EXITED TPROC_LOAD_MEM TASK");
 
    // INITIAL VALUES
 
