@@ -165,6 +165,7 @@ wire	[15:0]		dout_valid_v	;
 wire	[15:0]		dout_ready_v	;
 
 wire 				fifo_wr_en		;
+wire 				fifo_rd_en		;
 wire	[BT-1:0]	fifo_din		;
 wire	[BT-1:0]	fifo_dout		;
 wire				fifo_full		;
