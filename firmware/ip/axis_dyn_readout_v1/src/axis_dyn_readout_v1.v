@@ -73,7 +73,10 @@ assign fifo_wr_en   = s0_axis_tvalid;
 assign fifo_din     = s0_axis_tdata;
 
 // Readout Top.
-readout_top
+readout_top 
+	#(
+		.EMULATOR       (EMULATOR)
+	)
 	readout_top_i
 	(
 		// Reset and clock (s0_axis, s1_axis, m0_axis, m1_axis).

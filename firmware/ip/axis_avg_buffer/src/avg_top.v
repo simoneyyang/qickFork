@@ -120,7 +120,7 @@ if (!EMULATOR) begin : gen_synchronizer_AVG
 		);
 		
 end else begin: gen_synchronizer_AVG_sv
-	synchronizer_n
+	synchronizer_n_sv
 		#(
 			.N	(2)
 		)
@@ -304,34 +304,67 @@ end
 endgenerate
 
 // Output data register (dc fifo to cross domain).
-fifo_dc_axi_xpm
-    #(
-        // Data width.
-        .B	(4*B	),
-        
-        // Fifo depth.
-        .N	(16		)
-    )
-    fifo_i
-    ( 
-        .wr_rstn	(rstn			),
-        .wr_clk 	(clk			),
+generate
+if (!EMULATOR) begin : gen_fifo_cd_xpm
+	fifo_dc_axi_xpm
+		#(
+			// Data width.
+			.B	(4*B	),
 
-        .rd_rstn	(m_axis_aresetn	),
-        .rd_clk 	(m_axis_aclk	),
-        
-        // Write I/F.
-        .wr_en  	(mem_we_int		),
-        .din     	(mem_di_int		),
-        
-        // Read I/F.
-        .rd_en  	(m1_axis_tready	),
-        .dout   	(m1_axis_tdata	),
-        
-        // Flags.
-        .full    	(				),
-        .empty   	(fifo_empty		)
-    );
+			// Fifo depth.
+			.N	(16		)
+		)
+		fifo_i
+		(
+			.wr_rstn	(rstn			),
+			.wr_clk 	(clk			),
+
+			.rd_rstn	(m_axis_aresetn	),
+			.rd_clk 	(m_axis_aclk	),
+
+			// Write I/F.
+			.wr_en  	(mem_we_int		),
+			.din     	(mem_di_int		),
+
+			// Read I/F.
+			.rd_en  	(m1_axis_tready	),
+			.dout   	(m1_axis_tdata	),
+
+			// Flags.
+			.full    	(				),
+			.empty   	(fifo_empty		)
+		);
+end else begin: gen_fifo_dc_sv
+	fifo_dc_sv
+		#(
+			// Data width.
+			.B	(4*B	),
+
+			// Fifo depth.
+			.N	(16		)
+		)
+		fifo_i
+		(
+			.wr_rstn	(rstn			),
+			.wr_clk 	(clk			),
+
+			.rd_rstn	(m_axis_aresetn	),
+			.rd_clk 	(m_axis_aclk	),
+
+			// Write I/F.
+			.wr_en  	(mem_we_int		),
+			.din     	(mem_di_int		),
+
+			// Read I/F.
+			.rd_en  	(m1_axis_tready	),
+			.dout   	(m1_axis_tdata	),
+
+			// Flags.
+			.full    	(				),
+			.empty   	(fifo_empty		)
+		);
+end
+endgenerate
 
 // Assign outputs.
 assign m1_axis_tvalid	= ~fifo_empty;

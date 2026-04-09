@@ -135,7 +135,7 @@ genvar i;
 					.m_axis_data_tdata		(dds_dout[i]				)
 				);
 		end else begin 
-			dds_behavioral_model dds_i_emu
+			dds_behavioral_model dds_i
 				(
 					.aclk					(clk						),
 					.s_axis_phase_tvalid	(dds_tvalid_r				),

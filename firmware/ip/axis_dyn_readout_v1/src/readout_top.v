@@ -101,6 +101,9 @@ wire			fifo_empty;
 
 // Down-conversion + Filter +  Decimation.
 down_conversion_fir
+	#(
+		.EMULATOR(EMULATOR)
+	)
 	down_conversion_fir_i
 	(
 		// Reset and clock.
