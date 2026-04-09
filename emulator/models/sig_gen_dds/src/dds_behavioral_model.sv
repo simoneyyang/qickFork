@@ -13,7 +13,7 @@ module dds_behavioral_model # (
     // Reserve for Parameters
     parameter int       LUT_SIZE        = 256, // Lookup Table size
     parameter int       PHASE_WIDTH     = 32, // phase width
-    parameter string    INIT_FILE       = "sine_full32.hex", // ROM for LUT
+    parameter string    INIT_FILE       = "sine_cos_full32.hex", // ROM for LUT
     parameter int       DDS_LATENCY     = 10   // MUST MATCH DDS Compiler GUI Latency
 ) (
     input   logic        aclk, // clock at @ ??? MHz

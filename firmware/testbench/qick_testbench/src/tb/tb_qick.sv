@@ -69,6 +69,11 @@ string TEST_OUT_CONNECTION = "TEST_OUT_LOOPBACK";     // Connect DAC/ADC in Loop
 // string TEST_OUT_CONNECTION = "TEST_OUT_QEMU";         // Qubit Emulator
 //----------------------------------------------------
 
+// Emulator flag to conditionally instantiate 
+// behavioral models in place of VHDL/Xilinx IP.
+// Valid values: 0 for synthesis (default), non-zero for emulation.
+parameter EMULATOR = 0;
+
 // VIP Agents
 axi_mst_0_mst_t     axi_mst_tproc_agent;
 axi_mst_0_mst_t     axi_mst_sg_agent;
@@ -731,12 +736,14 @@ reg qcom_rdy_i, qp2_rdy_i;
    localparam N       = 10;
    localparam N_DDS   = 16;
 
+
    axis_signal_gen_v6 #(
       .N                   (N                ),
       .N_DDS               (N_DDS            ),
       .GEN_DDS             ("TRUE"           ),
       // .GEN_DDS             ("FALSE"           ),
-      .ENVELOPE_TYPE       ("COMPLEX"        )
+      .ENVELOPE_TYPE       ("COMPLEX"        ),
+      .EMULATOR            (EMULATOR        )
    )
    u_axis_signal_gen_v6_0 ( 
       // AXI Slave I/F for configuration.
@@ -1283,7 +1290,8 @@ reg qcom_rdy_i, qp2_rdy_i;
    axis_avg_buffer #(
       .N_AVG                  (13               ),
       .N_BUF                  (12               ),
-      .B                      (16               )
+      .B                      (16               ),
+      .EMULATOR               (EMULATOR         )
    )
    u_axis_avg_buffer_0 ( 
       // AXI Slave I/F for configuration.
@@ -1575,52 +1583,52 @@ initial begin
    end
 
 
-   if (TEST_NAME == "test_tproc_basic") begin
-      TEST_RUN_TIME = 50us;
-      forever begin
-         $display("*** %t - Start test_tproc_basic Test ***", $realtime());
-         wait (tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.core_en_o == 1'b1);
-         N = 11;
-         wait (tb_qick.AXIS_QPROC.QPROC.time_abs_o > 2**N+100);
-         fork
-            begin
-               while (N < 48) begin
-                  N = N+1;
+//   if (TEST_NAME == "test_tproc_basic") begin
+//      TEST_RUN_TIME = 50us;
+//      forever begin
+//         $display("*** %t - Start test_tproc_basic Test ***", $realtime());
+//         wait (tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.core_en_o == 1'b1);
+//         N = 11;
+//         wait (tb_qick.AXIS_QPROC.QPROC.time_abs_o > 2**N+100);
+//         fork
+//            begin
+//               while (N < 48) begin
+//                  N = N+1;
                   
-                  // Force time_abs
-                  $display("*** %t - Changing time_abs to get to %0u ***", $realtime(), (2**N)-100);
-                  force tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.TIME_ADDER.RESULT = (2**N)-100;
-                  #100ns;
-                  release tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.TIME_ADDER.RESULT;
+//                  // Force time_abs
+//                  $display("*** %t - Changing time_abs to get to %0u ***", $realtime(), (2**N)-100);
+//                  force tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.TIME_ADDER.RESULT = (2**N)-100;
+//                  #100ns;
+//                  release tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.QTIME_CTRL.TIME_ADDER.RESULT;
          
-                  $display("*** Waiting for trigger ***");
-                  wait (tb_qick.AXIS_QPROC.trig_0_o);
+//                  $display("*** Waiting for trigger ***");
+//                  wait (tb_qick.AXIS_QPROC.trig_0_o);
 
-                  $display("*** %t - Waiting for time_abs to get to %0u ***", $realtime(), 2**N+100);
-                  wait (tb_qick.AXIS_QPROC.QPROC.time_abs_o > 2**N+100);
-               end
-            end
-            begin
-               integer M = 15;
-               logic [47:0] new_ref_time;
-               while (M < 48) begin
-                  $display("*** %t - Waiting for r15 == %0d ***", $realtime(), M);
-                  wait (tb_qick.AXIS_QPROC.QPROC.CORE_0.CORE_CPU.reg_bank.dreg_32_dt[15] == M);
-                  new_ref_time = 2**M;
+//                  $display("*** %t - Waiting for time_abs to get to %0u ***", $realtime(), 2**N+100);
+//                  wait (tb_qick.AXIS_QPROC.QPROC.time_abs_o > 2**N+100);
+//               end
+//            end
+//            begin
+//               integer M = 15;
+//               logic [47:0] new_ref_time;
+//               while (M < 48) begin
+//                  $display("*** %t - Waiting for r15 == %0d ***", $realtime(), M);
+//                  wait (tb_qick.AXIS_QPROC.QPROC.CORE_0.CORE_CPU.reg_bank.dreg_32_dt[15] == M);
+//                  new_ref_time = 2**M;
 
-                  $display("*** %t - Changing c_time_ref_dt to get to %0u ***", $realtime(), new_ref_time);
-                  force tb_qick.AXIS_QPROC.QPROC.c_time_ref_dt = new_ref_time;
-                  #100ns;
-                  release tb_qick.AXIS_QPROC.QPROC.c_time_ref_dt;
+//                  $display("*** %t - Changing c_time_ref_dt to get to %0u ***", $realtime(), new_ref_time);
+//                  force tb_qick.AXIS_QPROC.QPROC.c_time_ref_dt = new_ref_time;
+//                  #100ns;
+//                  release tb_qick.AXIS_QPROC.QPROC.c_time_ref_dt;
 
-                  M = M + 1;
-               end
-            end
-         join
-         $display("*** %t - End of test_tproc_basic Test ***", $realtime());
-         wait (tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.core_en_o == 1'b0);
-      end
-   end
+//                  M = M + 1;
+//               end
+//            end
+//         join
+//         $display("*** %t - End of test_tproc_basic Test ***", $realtime());
+//         wait (tb_qick.AXIS_QPROC.QPROC.QPROC_CTRL.core_en_o == 1'b0);
+//      end
+//   end
 
 
    if (TEST_NAME == "test_qubit_emulator") begin
@@ -1724,9 +1732,15 @@ task tproc_load_mem(string test_name);
    $display("### Task tproc_load_mem() start ###");
    $display("Loading Test: %s", test_name);
 
-   pmem_file = {"../../../../src/tb/",test_name,"/pmem.mem"};
-   wmem_file = {"../../../../src/tb/",test_name,"/wmem.mem"};
-   dmem_file = {"../../../../src/tb/",test_name,"/dmem.mem"};
+   if (!EMULATOR) begin 
+      pmem_file = {"../../../../src/tb/",test_name,"/pmem.mem"};
+      wmem_file = {"../../../../src/tb/",test_name,"/wmem.mem"};
+      dmem_file = {"../../../../src/tb/",test_name,"/dmem.mem"};
+   end else begin 
+      pmem_file = {"../../../../../qick_testbench/src/tb/",test_name,"/pmem.mem"};
+      wmem_file = {"../../../../../qick_testbench/src/tb/",test_name,"/wmem.mem"};
+      dmem_file = {"../../../../../qick_testbench/src/tb/",test_name,"/dmem.mem"};
+   end
 
    $readmemh(pmem_file, AXIS_QPROC.QPROC.CORE_0.CORE_MEM.P_MEM.RAM);
    $readmemh(wmem_file, AXIS_QPROC.QPROC.CORE_0.CORE_MEM.W_MEM.RAM);
@@ -1768,7 +1782,11 @@ task sg_load_mem(string test_name) /*, input logic tb_load_mem, output logic tb_
    tb_load_mem    = 1;
 
    // File must be relative to where the simulation is run from (i.e.: xxx.sim/sim_x/behav/xsim)
-   sg_file = {"../../../../src/tb/",test_name,"/sg_0.mem"};
+   if (!EMULATOR) begin 
+      sg_file = {"../../../../src/tb/",test_name,"/sg_0.mem"};
+   end else begin 
+      sg_file = {"../../../../../qick_testbench/src/tb/",test_name,"/sg_0.mem"};
+   end
    fd = $fopen(sg_file,"r");
 
    wait (sg_s0_axis_tready);

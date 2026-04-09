@@ -28,16 +28,14 @@ module data_writer_sv #(
     typedef enum logic [1:0] {INIT_ST, READ_START_ADDR_ST, WAIT_TVALID_ST, RW_TDATA_ST} statetype;
     statetype state;
 
+    logic read_start_addr_state;
+    logic rw_tdata_state;
+
     // WE_REG_resync
     logic WE_REG_resync;
+    
+    synchronizer_n_sv #(.N(2)) sync_i(.clk(clk), .rstn(rstn), .data_in(WE_REG), .data_out(WE_REG_resync));
 
-    // Synchronizer (Use the SV version)
-    synchronizer_n_sv #(.N(2)) sync0(
-        .clk(clk), 
-        .rstn(rstn), 
-        .data_in(WE_REG), 
-        .data_out(WE_REG_resync)
-    );
 
     // Axis registers
     logic tready_i;
@@ -132,12 +130,36 @@ module data_writer_sv #(
     end
 
     // Output logic
-    always_comb begin 
-        tready_i = 0;
+    always_comb begin // fix logic here!!!
+        // read_start_addr_state = 0;
+        // rw_tdata_state = 0;
+        // tready_i = 0;
         case (state)
-            WAIT_TVALID_ST: tready_i = 1;
-            RW_TDATA_ST:    tready_i = 1;
-            default:        tready_i = 0;
+            INIT_ST: begin
+                read_start_addr_state = 0;
+                rw_tdata_state = 0;
+                tready_i = 0;
+            end
+            READ_START_ADDR_ST: begin 
+                read_start_addr_state = 1;
+                rw_tdata_state = 0;
+                tready_i = 0;
+            end
+            WAIT_TVALID_ST: begin
+                read_start_addr_state = 0;
+                rw_tdata_state = 0;
+                tready_i = 1;
+            end
+            RW_TDATA_ST: begin
+                read_start_addr_state = 0;
+                rw_tdata_state = 1;
+                tready_i = 1;
+            end 
+            default: begin
+                read_start_addr_state = 0;
+                rw_tdata_state = 0;
+                tready_i = 0;
+            end
         endcase
     end
 

@@ -25,6 +25,9 @@ module down_conversion (
 // Number of parallel dds blocks.
 parameter [15:0] N_DDS = 16;
 
+// Emulator flag
+parameter EMULATOR = 0;
+
 // 0.5 for rounding.
 localparam [31:0] RND_0P5 = 2**15;
 
@@ -122,14 +125,25 @@ genvar i;
 		/* Block instantiation */
 		/***********************/
 		// DDS.
-		dds_compiler_0 dds_i 
-			(
-		  		.aclk					(clk						),
-		  		.s_axis_phase_tvalid	(dds_tvalid_r				),
-		  		.s_axis_phase_tdata		(dds_ctrl_int_r[i*72 +: 72]	),
-		  		.m_axis_data_tvalid		(							),
-		  		.m_axis_data_tdata		(dds_dout[i]				)
-			);
+		if (!EMULATOR) begin 
+			dds_compiler_0 dds_i 
+				(
+					.aclk					(clk						),
+					.s_axis_phase_tvalid	(dds_tvalid_r				),
+					.s_axis_phase_tdata		(dds_ctrl_int_r[i*72 +: 72]	),
+					.m_axis_data_tvalid		(							),
+					.m_axis_data_tdata		(dds_dout[i]				)
+				);
+		end else begin 
+			dds_behavioral_model dds_i
+				(
+					.aclk					(clk						),
+					.s_axis_phase_tvalid	(dds_tvalid_r				),
+					.s_axis_phase_tdata		(dds_ctrl_int_r[i*72 +: 72]	),
+					.m_axis_data_tvalid		(							),
+					.m_axis_data_tdata		(dds_dout[i]				)
+				);
+		end
 
 		/*************/
 		/* Registers */
