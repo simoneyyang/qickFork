@@ -1,7 +1,7 @@
 how to use emulator
 -----
 from python 
-<in progress>
+(in progress)
 
 -----
 directly from terminal
