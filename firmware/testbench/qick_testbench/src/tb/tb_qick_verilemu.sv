@@ -123,7 +123,7 @@ module tb_qick_harness ();
 //----------------------------------------------------
 // Directory containing QickEmu-generated files.
 // Can be an absolute path or relative to the Vivado sim run directory.
-string EMU_DIR       = "../../../../src/tb";
+string EMU_DIR       = "input_dir";
 
 // How long to let tproc run after AXI replay completes.
 // The AXI replay includes the PROC_START command; this is additional wait time.
@@ -170,7 +170,7 @@ localparam integer AVG_BASE_HI = 32'h40260000;  // first non-avgbuf address
 // Emulator flag to conditionally instantiate 
 // behavioral models in place of VHDL/Xilinx IP.
 // Valid values: 0 for synthesis (default), non-zero for emulation.
-parameter EMULATOR = 0;
+parameter EMULATOR = 1;
 
 // VIP Agents
 
@@ -201,7 +201,7 @@ reg[31:0]       data_wr     = 32'h12345678;
 // ++++++++++++ TELL VERILATOR TO LOG SIGNALS IN VCD FILE
 initial begin
 
-   $dumpfile("obj_dir/waveform.vcd");
+   $dumpfile("obj_dir/emu_waveform.vcd");
    $dumpvars(0, tb_qick);
 
 end
@@ -1262,19 +1262,15 @@ reg qcom_rdy_i, qp2_rdy_i;
 // NOTE: diff from Vivado emu harness but hopefully no issues
    logic [2:0] rf_signal_cnt;
    always_ff @(posedge adc_fs) begin
-      if (TEST_OUT_CONNECTION == "TEST_OUT_LOOPBACK") begin
-         if (rf_signal_cnt == 0) begin
-            axis_adc_ro_tvalid                  <= rf_signal_valid_dly;
-            axis_adc_ro_tdata[N_DDS_RO*16-1:0]  <= rf_signal_data_dly;
-         end
-         else begin
-         end
-         if (rf_signal_valid_dly || axis_adc_ro_tvalid) begin
-            rf_signal_cnt  <= rf_signal_cnt + 1;
-         end
-         else begin
-            rf_signal_cnt  <= 0;
-         end
+      if (rf_signal_cnt == 0) begin
+         axis_adc_ro_tvalid                  <= rf_signal_valid_dly;
+         axis_adc_ro_tdata[N_DDS_RO*16-1:0]  <= rf_signal_data_dly;
+      end
+      if (rf_signal_valid_dly || axis_adc_ro_tvalid) begin
+         rf_signal_cnt  <= rf_signal_cnt + 1;
+      end
+      else begin
+         rf_signal_cnt  <= 0;
       end
    end
 
@@ -1694,10 +1690,10 @@ reg qcom_rdy_i, qp2_rdy_i;
 // >>> TEST STIMULI — QickEmu replay
 //--------------------------------------
 
+initial begin
 
 // <<<<<<<<<<<< XILINX VIP PACKAGES
 // >>> New QickEmu replay-based test stimuli
-// initial begin
 //    // Create and start VIP agents.
 //    axi_mst_tproc_agent  = new("axi_mst_tproc VIP Agent",tb_qick_emu_reformat.u_axi_mst_tproc_0.inst.IF);
 //    axi_mst_sg_agent     = new("axi_mst_sg_0 VIP Agent",  tb_qick_emu_reformat.u_axi_mst_sg_0.inst.IF);

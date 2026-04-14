@@ -1,7 +1,7 @@
 .PHONY: help wave sim verilate clean
 .DEFAULT_GOAL := help
 
-TOP_MODULE = tb_qick
+TOP_MODULE = tb_qick_harness
 
 
 # Paths
@@ -70,7 +70,7 @@ VERILOG_SOURCES = \
     $(AXI_DIR)/src/axi_pkg.sv \
     $(AXI_DIR)/src/axi_test.sv \
 	\
-	$(FIRMWARE_DIR)/testbench/qick_testbench/src/tb/tb_qick_verilator.sv
+	$(FIRMWARE_DIR)/testbench/qick_testbench/src/tb/tb_qick_verilemu.sv
 
 
 # Flags

@@ -88,6 +88,11 @@ CLAUDE.md
 *.vcd
 top_dac*.csv
 
+# Verilator Emu debugging outputs
+logger_*.txt
+emu_waveform.vcd
+input_dir/
+
 !/.gitignore
 !/README.md
 
