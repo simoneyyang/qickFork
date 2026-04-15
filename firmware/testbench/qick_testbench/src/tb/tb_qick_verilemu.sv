@@ -123,7 +123,8 @@ module tb_qick_harness ();
 //----------------------------------------------------
 // Directory containing QickEmu-generated files.
 // Can be an absolute path or relative to the Vivado sim run directory.
-string EMU_DIR       = "input_dir";
+string EMU_IN_DIR       = "../firmware/testbench/qick_testbench/src/tb/test_basic_pulses";
+string EMU_OUT_DIR      = "emu_output";
 
 // How long to let tproc run after AXI replay completes.
 // The AXI replay includes the PROC_START command; this is additional wait time.
@@ -741,6 +742,30 @@ reg qcom_rdy_i, qp2_rdy_i;
    // xil_axi_resp_t    resp;
 // ------------
 
+// <<<<<<<<<<<< XILINX AXI VIP
+   // axi_mst_0 u_axi_mst_sg_0 (
+   //    .aclk          (s_ps_dma_aclk    ),
+   //    .aresetn       (s_ps_dma_aresetn ),
+   //    .m_axi_araddr  (s_axi_sg_araddr  ),
+   //    .m_axi_arprot  (s_axi_sg_arprot  ),
+   //    .m_axi_arready (s_axi_sg_arready ),
+   //    .m_axi_arvalid (s_axi_sg_arvalid ),
+   //    .m_axi_awaddr  (s_axi_sg_awaddr  ),
+   //    .m_axi_awprot  (s_axi_sg_awprot  ),
+   //    .m_axi_awready (s_axi_sg_awready ),
+   //    .m_axi_awvalid (s_axi_sg_awvalid ),
+   //    .m_axi_bready  (s_axi_sg_bready  ),
+   //    .m_axi_bresp   (s_axi_sg_bresp   ),
+   //    .m_axi_bvalid  (s_axi_sg_bvalid  ),
+   //    .m_axi_rdata   (s_axi_sg_rdata   ),
+   //    .m_axi_rready  (s_axi_sg_rready  ),
+   //    .m_axi_rresp   (s_axi_sg_rresp   ),
+   //    .m_axi_rvalid  (s_axi_sg_rvalid  ),
+   //    .m_axi_wdata   (s_axi_sg_wdata   ),
+   //    .m_axi_wready  (s_axi_sg_wready  ),
+   //    .m_axi_wstrb   (s_axi_sg_wstrb   ),
+   //    .m_axi_wvalid  (s_axi_sg_wvalid  )
+   // );
 
 // ============
 
@@ -1266,6 +1291,8 @@ reg qcom_rdy_i, qp2_rdy_i;
          axis_adc_ro_tvalid                  <= rf_signal_valid_dly;
          axis_adc_ro_tdata[N_DDS_RO*16-1:0]  <= rf_signal_data_dly;
       end
+      else begin
+      end
       if (rf_signal_valid_dly || axis_adc_ro_tvalid) begin
          rf_signal_cnt  <= rf_signal_cnt + 1;
       end
@@ -1785,14 +1812,14 @@ initial begin
    #1us;
 
    // >>> Load signal generator envelope table (if any shaped pulses used)
-   sg_load_mem_emu(EMU_DIR, 0);
+   sg_load_mem_emu(EMU_IN_DIR, 0);
 
    #1us;
 
    // >>> Replay all AXI-Lite transactions
    begin
       string replay_path;
-      replay_path = {EMU_DIR, "/axi_replay.txt"};
+      replay_path = {EMU_IN_DIR, "/axi_replay.txt"};
       $display("### %t - Replaying AXI transactions from %s ###",
                $realtime(), replay_path);
       replay_axi_writes(replay_path);
@@ -1873,9 +1900,9 @@ integer dec_csv_fd;   // Decimated IQ from avg_buffer m1 (one row per word)
 
 initial begin
    string dac_csv_path, avg_csv_path, dec_csv_path;
-   dac_csv_path = {EMU_DIR, "/dac_out.csv"};
-   avg_csv_path = {EMU_DIR, "/avg_out.csv"};
-   dec_csv_path = {EMU_DIR, "/dec_out.csv"};
+   dac_csv_path = {EMU_OUT_DIR, "/dac_out.csv"};
+   avg_csv_path = {EMU_OUT_DIR, "/avg_out.csv"};
+   dec_csv_path = {EMU_OUT_DIR, "/dec_out.csv"};
    dac_csv_fd = $fopen(dac_csv_path, "w");
    avg_csv_fd = $fopen(avg_csv_path, "w");
    dec_csv_fd = $fopen(dec_csv_path, "w");
@@ -2302,12 +2329,51 @@ endtask
 // sg_ch: channel index (used to select sgmem_ch{sg_ch}.mem).
 // If the file doesn't exist (e.g., const-style pulse with no envelope), prints a
 // message and returns without driving the AXIS interface.
-task sg_load_mem_emu(string emu_dir, int sg_ch);
+// Load pulse data into memory.
+task sg_load_mem_emu(string emu_dir, int sg_ch) /*, input logic tb_load_mem, output logic tb_load_mem_done)*/;
    string sg_file;
-   integer fd, vali, valq;
-   bit signed [15:0] ii, qq;
+   int fd,vali,valq;
+   bit signed [15:0] ii,qq;
 
-   sg_file = $sformatf("%s/sgmem_ch%0d.mem", emu_dir, sg_ch);
+   $display("### %t - Task sg_load_mem() start ###", $realtime());
+
+   sg_s0_axis_tvalid = 0;
+   sg_s0_axis_tdata  = 0;
+
+   
+   $display("################################");
+   $display("### Load envelope into Table ###");
+   $display("################################");
+   $display("t = %0t", $time);
+
+   // start_addr.
+   data_wr = 0;
+      @(posedge s_ps_dma_aclk); #0.1;
+// <<<<<<<<<<<< XILINX VIP PACKAGES
+   // axi_mst_sg_agent.AXI4LITE_WRITE_BURST(SG_ADDR_START_ADDR, prot, data_wr, resp);
+// ============
+   axi_mst_sg_agent.write(SG_ADDR_START_ADDR, prot, data_wr, 8'hFF, resp);
+   //                                                        ^~~~~~~~~~~~ write strobe set to all ones
+// >>>>>>>>>>>> PULP PLATFORM AXI VIP
+
+   $display("wait at %0t of %0t fs", $realtime(), 100ns);
+   #100ns;
+   
+   // we.
+   data_wr = 1;
+// <<<<<<<<<<<< XILINX VIP PACKAGES
+   // axi_mst_sg_agent.AXI4LITE_WRITE_BURST(SG_ADDR_WE, prot, data_wr, resp);
+// ============
+   axi_mst_sg_agent.write(SG_ADDR_WE, prot, data_wr, 8'hFF, resp);
+// >>>>>>>>>>>> PULP PLATFORM AXI VIP
+
+   #100ns;
+   
+   // Load Envelope Table Memory.
+   tb_load_mem    = 1;
+
+   // File must be relative to where the simulation is run from (i.e.: xxx.sim/sim_x/behav/xsim)
+   sg_file = $sformatf("%s/sg_%0d.mem", emu_dir, sg_ch);
    fd = $fopen(sg_file, "r");
    if (fd == 0) begin
       $display("### %t - SG ch%0d: no envelope file %s (const pulse or not used) ###",
@@ -2318,25 +2384,10 @@ task sg_load_mem_emu(string emu_dir, int sg_ch);
    $display("### %t - Loading SG ch%0d envelope from %s ###",
             $realtime(), sg_ch, sg_file);
 
-   // Set envelope table start address to 0 and enable write
-   @(posedge s_ps_dma_aclk); #0.1;
-   // <<<<<<<<<<<< XILINX VIP PACKAGES
-   // axi_mst_sg_agent.AXI4LITE_WRITE_BURST(SG_ADDR_START_ADDR, prot, 0, resp);
-   // ============
-   axi_mst_sg_agent.write(SG_ADDR_START_ADDR, prot, 32'h00000000, 8'hFF, resp);
-   // >>>>>>>>>>>> PULP PLATFORM AXI VIP
-   #100ns;
-   // <<<<<<<<<<<< XILINX VIP PACKAGES
-   // axi_mst_sg_agent.AXI4LITE_WRITE_BURST(SG_ADDR_WE, prot, 1, resp);
-   // ============
-   axi_mst_sg_agent.write(SG_ADDR_WE, prot, 32'h00000001, 8'hFF, resp);
-   // >>>>>>>>>>>> PULP PLATFORM AXI VIP
-   #100ns;
+   wait (sg_s0_axis_tready);
 
-   tb_load_mem = 1;
-   wait(sg_s0_axis_tready);
-
-   while ($fscanf(fd, "%d,%d", vali, valq) == 2) begin
+   while($fscanf(fd,"%d,%d", vali,valq) == 2) begin
+      // $display("I,Q: %d, %d", vali,valq);
       ii = vali;
       qq = valq;
       @(posedge sg_s0_axis_aclk);
@@ -2346,10 +2397,11 @@ task sg_load_mem_emu(string emu_dir, int sg_ch);
    $fclose(fd);
 
    @(posedge sg_s0_axis_aclk);
-   sg_s0_axis_tvalid = 0;
-   tb_load_mem_done  = 1;
+   sg_s0_axis_tvalid    = 0;
 
-   $display("### %t - SG ch%0d envelope loaded ###", $realtime(), sg_ch);
+   tb_load_mem_done = 1;
+
+   $display("### %t - Task sg_load_mem() end ###", $realtime());
 endtask
 
 
